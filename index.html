@@ -515,17 +515,21 @@
                             </button>
                         `;
                     } else if (view === 'events') {
+                        // UPDATED: Standardized and Evenly Spaced Header Buttons (Multiple Files & URL Link)
                         actionBtn.innerHTML = `
                             <button onclick="ui.modal.renderForm('events')" class="btn-tab-action">
                                 <i data-lucide="plus-circle"></i> Add
                             </button>
                             <button onclick="document.getElementById('ics-upload').click()" class="btn-tab-action">
-                                <i data-lucide="file-up"></i> Import
+                                <i data-lucide="file-up"></i> Import Files
+                            </button>
+                            <button onclick="logic.showUrlImportModal()" class="btn-tab-action">
+                                <i data-lucide="link"></i> Add Link
                             </button>
                             <button onclick="logic.showImportInstructions()" class="btn-tab-action">
                                 <i data-lucide="help-circle"></i> Help
                             </button>
-                            <input type="file" id="ics-upload" class="hidden" accept=".ics" onchange="logic.importIcs(this)">
+                            <input type="file" id="ics-upload" class="hidden" accept=".ics" multiple onchange="logic.importIcs(this)">
                         `;
                     } else {
                         actionBtn.innerHTML = `
@@ -699,8 +703,8 @@
                             </div>
                             <button onclick="document.getElementById('settings-ics-upload').click()" class="w-full py-6 bg-white border-2 border-dashed border-indigo-200 rounded-3xl font-bold text-indigo-600 flex flex-col items-center gap-2 hover:border-indigo-500 transition-all">
                                 <i data-lucide="upload-cloud" class="w-6 h-6"></i>
-                                Upload .ics File
-                                <input type="file" id="settings-ics-upload" class="hidden" accept=".ics" onchange="logic.importIcs(this)">
+                                Upload .ics File(s)
+                                <input type="file" id="settings-ics-upload" class="hidden" accept=".ics" multiple onchange="logic.importIcs(this)">
                             </button>
                         </section>
 
@@ -849,16 +853,18 @@
                 ui.modal.open("How to Export", "Follow these steps to sync your Google Calendar", html);
             },
 
+            // UPDATED: Support for Multiple File Imports
             importIcs: async (input) => {
-                const file = input.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async (e) => {
+                const files = Array.from(input.files);
+                if (files.length === 0) return;
+                
+                let totalCount = 0;
+                for (const file of files) {
+                    const text = await file.text();
                     try {
-                        const jcalData = ICAL.parse(e.target.result);
+                        const jcalData = ICAL.parse(text);
                         const comp = new ICAL.Component(jcalData);
                         const vevents = comp.getAllSubcomponents('vevent');
-                        let count = 0;
                         for (const vevent of vevents) {
                             const event = new ICAL.Event(vevent);
                             await db.events.add({
@@ -868,16 +874,57 @@
                                 description: event.description || '',
                                 createdAt: Date.now()
                             });
-                            count++;
+                            totalCount++;
                         }
-                        alert(`Success! Imported ${count} events into your calendar.`);
-                        router.load(state.currentView);
                     } catch (err) {
-                        console.error(err);
-                        alert("Error parsing .ics file. Please ensure it is a valid calendar export.");
+                        console.error(`Error parsing ${file.name}:`, err);
                     }
-                };
-                reader.readAsText(file);
+                }
+                alert(`Success! Imported ${totalCount} events from ${files.length} files.`);
+                router.load(state.currentView);
+            },
+
+            // ADDED: UI Function for URL Import Modal (Google Calendar Links)
+            showUrlImportModal: () => {
+                const html = `
+                    <div class="space-y-4">
+                        <p class="text-xs text-slate-500 font-medium">Paste a Public Google Calendar ICAL link. Usually ends in <code class="bg-slate-100 p-0.5 rounded">/public/basic.ics</code></p>
+                        <input type="url" id="calendar-url-input" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://calendar.google.com/calendar/ical/...">
+                        <button onclick="logic.fetchAndImportIcs(document.getElementById('calendar-url-input').value)" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl">Fetch & Update</button>
+                    </div>
+                `;
+                ui.modal.open("Link Public Calendar", "Import via URL feed", html);
+            },
+
+            // ADDED: Logic to fetch and import from URL
+            fetchAndImportIcs: async (url) => {
+                if (!url) return;
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error("Could not fetch the calendar file.");
+                    const text = await response.text();
+                    const jcalData = ICAL.parse(text);
+                    const comp = new ICAL.Component(jcalData);
+                    const vevents = comp.getAllSubcomponents('vevent');
+                    let count = 0;
+                    for (const vevent of vevents) {
+                        const event = new ICAL.Event(vevent);
+                        await db.events.add({
+                            title: event.summary,
+                            start: event.startDate.toJSDate().toISOString(),
+                            end: event.endDate.toJSDate().toISOString(),
+                            description: event.description || '',
+                            createdAt: Date.now()
+                        });
+                        count++;
+                    }
+                    alert(`Success! Imported ${count} events.`);
+                    ui.modal.close();
+                    router.load(state.currentView);
+                } catch (err) {
+                    console.error(err);
+                    alert("Error fetching or parsing calendar. Note: Public links must support CORS to be fetched directly in the browser.");
+                }
             },
 
             handleForm: async (e, key, id = null) => {
