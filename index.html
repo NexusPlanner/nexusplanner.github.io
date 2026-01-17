@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +26,105 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--brand-bg);
             color: #1e293b;
+            transition: all 0.3s ease-in-out;
         }
+
+        /* ==========================================================================
+           THEME ENGINE STYLES (ADDED)
+           ========================================================================== */
+
+        /* Dark Mode Override */
+        body.theme-dark {
+            --brand-bg: #0f172a;
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        body.theme-dark aside, 
+        body.theme-dark header, 
+        body.theme-dark .bg-white, 
+        body.theme-dark .widget-card,
+        body.theme-dark .calendar-cell {
+            background-color: #1e293b !important;
+            color: #f1f5f9;
+            border-color: #334155 !important;
+        }
+        body.theme-dark .text-slate-800, 
+        body.theme-dark .text-slate-700, 
+        body.theme-dark .text-slate-600 {
+            color: #cbd5e1 !important;
+        }
+        body.theme-dark .bg-slate-50, 
+        body.theme-dark .bg-slate-100, 
+        body.theme-dark .calendar-day-header {
+            background-color: #0f172a !important;
+            color: #94a3b8;
+        }
+
+        /* Colorful Mode Override */
+        body.theme-colorful {
+            --brand-primary: #d946ef;
+            --brand-bg: #fdf4ff;
+            background-color: #fdf4ff;
+        }
+        body.theme-colorful .bg-indigo-600 { background-color: #d946ef !important; }
+        body.theme-colorful .text-indigo-600 { color: #d946ef !important; }
+        body.theme-colorful aside { background-color: #fae8ff !important; }
+
+        /* Party Mode Override */
+        body.theme-party {
+            animation: party-bg-cycle 10s infinite alternate;
+        }
+        @keyframes party-bg-cycle {
+            0% { background-color: #fee2e2; }
+            33% { background-color: #e0e7ff; }
+            66% { background-color: #dcfce7; }
+            100% { background-color: #fef9c3; }
+        }
+
+        /* ==========================================================================
+           NOTIFICATION SYSTEM STYLES (ADDED)
+           ========================================================================== */
+        
+        #nexus-notification-hub {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .notification-toast {
+            pointer-events: auto;
+            min-width: 340px;
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-left: 8px solid;
+            display: flex;
+            flex-direction: column;
+            animation: toast-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes toast-slide-in {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-toast.dismissing {
+            animation: toast-slide-out 0.3s forwards;
+        }
+
+        @keyframes toast-slide-out {
+            to { transform: translateX(120%); opacity: 0; }
+        }
+
+        /* ==========================================================================
+           EXISTING CORE STYLES (PRESERVED)
+           ========================================================================== */
 
         /* Sidebar State */
         .nav-active {
@@ -178,7 +275,10 @@
         }
     </style>
 </head>
-<body class="overflow-hidden">
+<body class="overflow-hidden theme-light">
+
+    <!-- ADDED: UI container for notification logic -->
+    <div id="nexus-notification-hub"></div>
 
     <div id="app" class="flex h-screen w-full">
         <!-- Main Sidebar -->
@@ -272,7 +372,9 @@
          * 1. DATABASE LAYER 
          */
         const db = new Dexie("PlannerCompleteStorage");
-        db.version(1).stores({
+        
+        // UPDATED: Bumped version and added Reminders table for persistence
+        db.version(2).stores({
             tasks: '++id, title, status, priority, dueDate, section, projectId, classId, isRecurring, description',
             projects: '++id, name, status, progress, deadline, description',
             school: '++id, className, instructor, semester',
@@ -281,7 +383,9 @@
             habits: '++id, name, streak, logs, goal',
             extra: '++id, name, role, hours',
             settings: 'key, value',
-            backups: '++id, timestamp'
+            backups: '++id, timestamp',
+            // Persistent storage for reminders
+            reminders: '++id, title, time, priority, color, dismissed' 
         });
 
         /**
@@ -289,6 +393,7 @@
          */
         const defaultConfig = {
             dashboardMode: 'command',
+            theme: 'light', // ADDED: Shared theme state 
             features: {
                 tasks: true,
                 projects: true,
@@ -336,9 +441,14 @@
          */
         const ui = {
             init: async () => {
+                logic.applyTheme(); // Load saved theme preference
                 ui.refreshNavigation();
                 ui.updateClock();
                 setInterval(ui.updateClock, 1000);
+                
+                // ADDED: Start the reminder polling system
+                setInterval(logic.checkActiveReminders, 12000); 
+                
                 await automation.runner();
                 router.load('dashboard');
             },
@@ -550,7 +660,7 @@
                     case 'habits': await renderers.habits(viewport); break;
                     case 'events': await renderers.events(viewport); break;
                     case 'extra': await renderers.extra(viewport); break;
-                    case 'settings': renderers.settings(viewport); break;
+                    case 'settings': await renderers.settings(viewport); break;
                 }
                 lucide.createIcons();
             }
@@ -684,12 +794,42 @@
                 lucide.createIcons();
             },
 
-            settings: (target) => {
+            settings: async (target) => {
                 target.innerHTML = `
-                    <div class="max-w-3xl mx-auto space-y-12">
+                    <div class="max-w-3xl mx-auto space-y-12 pb-20">
+                        
+                        <!-- THEME ENGINE SECTION (NEW) -->
                         <section>
                             <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                <i data-lucide="calendar" class="w-4 h-4"></i> Calendar Import
+                                <i data-lucide="palette" class="w-4 h-4"></i> Appearance & Interface
+                            </h3>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                ${['light', 'dark', 'colorful', 'party'].map(t => `
+                                    <button onclick="logic.setTheme('${t}')" class="p-5 bg-white border-2 rounded-3xl text-left transition-all hover:border-indigo-500 ${state.config.theme === t ? 'border-indigo-600 ring-4 ring-indigo-50' : 'border-slate-100'}">
+                                        <div class="w-full h-10 rounded-xl mb-3 ${t === 'light' ? 'bg-slate-100' : t === 'dark' ? 'bg-slate-800' : t === 'colorful' ? 'bg-pink-100' : 'bg-gradient-to-tr from-yellow-200 to-indigo-200'}"></div>
+                                        <span class="text-xs font-bold capitalize text-slate-700">${t} Mode</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </section>
+
+                        <!-- SCHEDULED REMINDERS SECTION (NEW) -->
+                        <section>
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                    <i data-lucide="bell" class="w-4 h-4"></i> Active Reminders
+                                </h3>
+                                <button onclick="logic.openNewReminderModal()" class="text-xs font-bold text-indigo-600 hover:scale-105 active:scale-95 transition-transform">+ Add Schedule</button>
+                            </div>
+                            <div id="active-reminders-list" class="space-y-3">
+                                <!-- Loads dynamically -->
+                            </div>
+                        </section>
+
+                        <!-- CALENDAR IMPORT SECTION -->
+                        <section>
+                            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-4 h-4"></i> External Calendar Integration
                             </h3>
                             <div class="bg-indigo-50 p-8 rounded-[2rem] border border-indigo-100 italic mb-4">
                                 <h4 class="font-bold text-indigo-900 mb-2">How to Import from Google Calendar:</h4>
@@ -709,10 +849,19 @@
                             </button>
                         </section>
 
+                        <!-- FEATURE MANAGEMENT SECTION -->
                         <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> Feature Management</h3><div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 divide-y overflow-hidden">
                         ${Object.keys(state.config.features).map(key => `<div class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500"><i data-lucide="${FEATURE_META[key].icon}" class="w-5 h-5"></i></div><div><p class="font-bold text-slate-700 capitalize">${key}</p><p class="text-xs text-slate-400">Enable or disable the ${key} module.</p></div></div><button onclick="logic.toggleFeature('${key}')" class="w-14 h-8 rounded-full relative transition-all ${state.config.features[key] ? 'bg-indigo-600' : 'bg-slate-300'}"><div class="w-6 h-6 bg-white rounded-full absolute top-1 transition-all ${state.config.features[key] ? 'right-1' : 'left-1'}"></div></button></div>`).join('')}
-                        </div></section><section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> Automation Rules</h3><div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 p-8 space-y-6"><div class="flex items-center justify-between"><p class="font-bold text-sm text-slate-600">Auto-Carryover Overdue Tasks</p><input type="checkbox" onchange="logic.updateConfig('autoCarryover', this.checked)" ${state.config.automation.autoCarryover ? 'checked' : ''}></div></div></section><section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i> Portability & Data</h3><div class="grid grid-cols-2 gap-4"><button onclick="logic.exportData()" class="p-6 bg-white border border-slate-200 rounded-3xl font-bold flex flex-col items-center gap-4 hover:border-indigo-500 transition-all"><i data-lucide="download" class="w-8 h-8 text-indigo-600"></i> Export Backup</button><button onclick="logic.factoryReset()" class="p-6 bg-red-50 border border-red-100 rounded-3xl font-bold text-red-600 flex flex-col items-center gap-4 hover:bg-red-100 transition-all"><i data-lucide="trash-2" class="w-8 h-8"></i> Wipe Database</button></div></section></div>
+                        </div></section>
+
+                        <!-- AUTOMATION RULES -->
+                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> Automation Rules</h3><div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 p-8 space-y-6"><div class="flex items-center justify-between"><p class="font-bold text-sm text-slate-600">Auto-Carryover Overdue Tasks</p><input type="checkbox" onchange="logic.updateConfig('autoCarryover', this.checked)" ${state.config.automation.autoCarryover ? 'checked' : ''}></div></div></section>
+
+                        <!-- DATA PORTABILITY -->
+                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i> Portability & Data</h3><div class="grid grid-cols-2 gap-4"><button onclick="logic.exportData()" class="p-6 bg-white border border-slate-200 rounded-3xl font-bold flex flex-col items-center gap-4 hover:border-indigo-500 transition-all"><i data-lucide="download" class="w-8 h-8 text-indigo-600"></i> Export Backup</button><button onclick="logic.factoryReset()" class="p-6 bg-red-50 border border-red-100 rounded-3xl font-bold text-red-600 flex flex-col items-center gap-4 hover:bg-red-100 transition-all"><i data-lucide="trash-2" class="w-8 h-8"></i> Wipe Database</button></div></section>
+                    </div>
                 `;
+                logic.refreshRemindersList();
                 lucide.createIcons();
             },
 
@@ -806,6 +955,164 @@
          * 7. CORE BUSINESS LOGIC 
          */
         const logic = {
+            
+            /** =====================================================================
+                THEME ENGINE LOGIC (NEW)
+                ===================================================================== */
+            
+            setTheme: (themeName) => {
+                state.config.theme = themeName;
+                logic.saveConfig();
+                logic.applyTheme();
+                router.load('settings');
+            },
+
+            applyTheme: () => {
+                const themes = ['light', 'dark', 'colorful', 'party'];
+                themes.forEach(t => document.body.classList.remove(`theme-${t}`));
+                document.body.classList.add(`theme-${state.config.theme}`);
+            },
+
+            /** =====================================================================
+                REMINDER SYSTEM LOGIC (NEW)
+                ===================================================================== */
+
+            openNewReminderModal: () => {
+                const form = `
+                    <form onsubmit="logic.saveReminder(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Reminder Content</label>
+                            <input name="title" required class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="e.g. Daily Medication">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Daily Time</label>
+                                <input type="time" name="time" required class="w-full p-4 border rounded-2xl">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Box Color</label>
+                                <input type="color" name="color" value="#6366f1" class="w-full h-[58px] p-1 border rounded-2xl cursor-pointer">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Priority / Dismiss Action</label>
+                            <select name="priority" class="w-full p-4 border rounded-2xl">
+                                <option value="1">1 Minute (Auto)</option>
+                                <option value="5">5 Minutes (Auto)</option>
+                                <option value="60">1 Hour (Auto)</option>
+                                <option value="1440">1 Day (Auto)</option>
+                                <option value="0">Requires Interaction</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-xl">Activate Schedule</button>
+                    </form>
+                `;
+                ui.modal.open("Schedule Reminder", "Daily automated notifications", form);
+            },
+
+            saveReminder: async (e) => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(e.target).entries());
+                data.dismissed = []; // Tracking per-day dismissals
+                await db.reminders.add(data);
+                ui.modal.close();
+                router.load('settings');
+            },
+
+            refreshRemindersList: async () => {
+                const container = document.getElementById('active-reminders-list');
+                if(!container) return;
+
+                const rs = await db.reminders.toArray();
+                container.innerHTML = rs.length ? rs.map(r => `
+                    <div class="p-6 bg-white border border-slate-100 rounded-[2rem] flex justify-between items-center shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-4 h-4 rounded-full ring-4 ring-slate-50" style="background: ${r.color}"></div>
+                            <div>
+                                <p class="font-bold text-slate-800">${r.title}</p>
+                                <p class="text-[10px] font-black uppercase text-slate-400 italic">Daily at ${r.time} • Prio: ${r.priority == '0' ? 'Manual' : r.priority + 'm'}</p>
+                            </div>
+                        </div>
+                        <button onclick="logic.deleteData('reminders', ${r.id})" class="p-3 text-slate-300 hover:text-red-500 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `).join('') : `<div class="p-10 border-2 border-dashed border-slate-100 rounded-[2rem] text-center text-[10px] font-black uppercase tracking-widest text-slate-300">No active notifications</div>`;
+                lucide.createIcons();
+            },
+
+            checkActiveReminders: async () => {
+                const now = new Date();
+                const curTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                const dayStamp = now.toDateString();
+                
+                const active = await db.reminders.toArray();
+                active.forEach(r => {
+                    // Trigger if time matches and wasn't dismissed today
+                    if (r.time === curTime && (!r.dismissed || !r.dismissed.includes(dayStamp))) {
+                        logic.fireNotification(r);
+                    }
+                });
+            },
+
+            fireNotification: (r) => {
+                // Prevent duplicate toasts for the same reminder
+                if (document.getElementById(`toast-${r.id}`)) return;
+
+                const hub = document.getElementById('nexus-notification-hub');
+                const toast = document.createElement('div');
+                toast.id = `toast-${r.id}`;
+                toast.className = 'notification-toast';
+                toast.style.borderColor = r.color;
+                
+                toast.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Scheduled Reminder</span>
+                            <h4 class="font-bold text-lg text-slate-800 mt-1">${r.title}</h4>
+                        </div>
+                        <button onclick="logic.dismissToastNotification(${r.id})" class="p-2 hover:bg-slate-100 rounded-full">
+                            <i data-lucide="x" class="w-5 h-5 text-slate-400 text-slate-400"></i>
+                        </button>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-50 flex justify-end">
+                        <button onclick="logic.dismissToastNotification(${r.id})" class="text-xs font-black uppercase text-indigo-600 px-4 py-2 bg-indigo-50 rounded-xl hover:bg-indigo-100">Acknowledge</button>
+                    </div>
+                `;
+                
+                hub.appendChild(toast);
+                lucide.createIcons();
+
+                // Auto-dismiss logic based on user-set priority
+                const minutes = parseInt(r.priority);
+                if (minutes > 0) {
+                    setTimeout(() => logic.dismissToastNotification(r.id), minutes * 60000);
+                }
+            },
+
+            dismissToastNotification: async (id) => {
+                const el = document.getElementById(`toast-${id}`);
+                if (el) {
+                    el.classList.add('dismissing');
+                    setTimeout(() => el.remove(), 400);
+                }
+
+                // Add today to the dismissed list in DB so it doesn't pop up again today
+                const reminder = await db.reminders.get(id);
+                if (reminder) {
+                    const logs = reminder.dismissed || [];
+                    const today = new Date().toDateString();
+                    if(!logs.includes(today)) {
+                        logs.push(today);
+                        await db.reminders.update(id, { dismissed: logs });
+                    }
+                }
+            },
+
+            /** =====================================================================
+                CORE LOGIC (PRESERVED)
+                ===================================================================== */
+
             search: (val) => {
                 state.searchQuery = val.toLowerCase();
                 if (state.currentView !== 'dashboard') router.load(state.currentView);
@@ -854,7 +1161,6 @@
                 ui.modal.open("How to Export", "Follow these steps to sync your Google Calendar", html);
             },
 
-            // UPDATED: Support for Multiple File Imports
             importIcs: async (input) => {
                 const files = Array.from(input.files);
                 if (files.length === 0) return;
@@ -885,7 +1191,6 @@
                 router.load(state.currentView);
             },
 
-            // ADDED: UI Function for URL Import Modal (Google Calendar Links)
             showUrlImportModal: () => {
                 const html = `
                     <div class="space-y-4">
@@ -897,7 +1202,6 @@
                 ui.modal.open("Link Public Calendar", "Import via URL feed", html);
             },
 
-            // ADDED: Logic to fetch and import from URL
             fetchAndImportIcs: async (url) => {
                 if (!url) return;
                 try {
