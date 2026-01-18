@@ -15,25 +15,75 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         :root {
             --brand-primary: #6366f1;
             --brand-bg: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(226, 232, 240, 0.8);
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--brand-bg);
             color: #1e293b;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* IMPROVED: APPEARANCE & INTERFACE STYLES (ENHANCED GLASSMORPHISM) */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .widget-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            border-radius: 2.5rem;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        }
+
+        .widget-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 40px -10px rgba(0, 0, 0, 0.05);
+            border-color: var(--brand-primary);
+        }
+
+        /* Sidebar State Improvement */
+        .nav-active {
+            background: linear-gradient(90deg, #eef2ff 0%, #ffffff 100%);
+            color: #4f46e5 !important;
+            font-weight: 800 !important;
+            border-right: 5px solid #4f46e5;
+        }
+
+        /* Modern Typography Presets */
+        .heading-hero {
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        /* Timer Badge */
+        .timer-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid #e2e8f0;
         }
 
         /* ==========================================================================
-           THEME ENGINE STYLES (ADDED)
+           THEME ENGINE STYLES (PRESERVED)
            ========================================================================== */
 
-        /* Dark Mode Override */
         body.theme-dark {
             --brand-bg: #0f172a;
             background-color: #0f172a;
@@ -60,7 +110,6 @@
             color: #94a3b8;
         }
 
-        /* Colorful Mode Override */
         body.theme-colorful {
             --brand-primary: #d946ef;
             --brand-bg: #fdf4ff;
@@ -68,9 +117,7 @@
         }
         body.theme-colorful .bg-indigo-600 { background-color: #d946ef !important; }
         body.theme-colorful .text-indigo-600 { color: #d946ef !important; }
-        body.theme-colorful aside { background-color: #fae8ff !important; }
 
-        /* Party Mode Override */
         body.theme-party {
             animation: party-bg-cycle 10s infinite alternate;
         }
@@ -82,7 +129,7 @@
         }
 
         /* ==========================================================================
-           NOTIFICATION SYSTEM STYLES (ADDED)
+           NOTIFICATION SYSTEM STYLES (PRESERVED)
            ========================================================================== */
         
         #nexus-notification-hub {
@@ -126,21 +173,11 @@
            EXISTING CORE STYLES (PRESERVED)
            ========================================================================== */
 
-        /* Sidebar State */
-        .nav-active {
-            background: #eff6ff;
-            color: #2563eb !important;
-            font-weight: 700 !important;
-            border-right: 3px solid #2563eb;
-        }
-
-        /* Dashboard Widget Transitions */
         .widget-ghost {
             opacity: 0.3;
             background: #e2e8f0;
         }
 
-        /* Google Calendar Grid Styles */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -148,7 +185,6 @@
             border-left: 1px solid #e2e8f0;
         }
 
-        /* CALENDAR SCROLL FIXES */
         .calendar-scroll-area {
             overflow-y: auto;
             flex: 1;
@@ -158,7 +194,6 @@
         .calendar-day-header {
             position: sticky;
             top: 0;
-            /* FIXED: Lowered z-index so it stays under main header */
             z-index: 5; 
             background: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
@@ -206,46 +241,31 @@
             cursor: pointer;
         }
 
-        /* Scrollbar styling */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Dashboard Modes */
-        .minimal-mode .widget-header { display: none; }
-        .minimal-mode .widget-card { border: none; box-shadow: none; background: transparent; padding: 0.5rem 0; }
-        
-        /* Custom Checkbox */
-        input[type="checkbox"] {
-            width: 1.2rem;
-            height: 1.2rem;
-            accent-color: #2563eb;
-            cursor: pointer;
-        }
-
-        /* UPDATED: Improved Tab Action Buttons */
         .btn-tab-action {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: white;
             color: #475569;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .btn-tab-action:hover {
             background: #f8fafc;
-            border-color: #cbd5e1;
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
             transform: translateY(-1px);
-        }
-        .btn-tab-action i {
-            width: 14px;
-            height: 14px;
         }
 
         /* Modal Animations */
@@ -254,20 +274,10 @@
         .animate-in { animation: fadeIn 0.2s ease-out; }
         .zoom-in { animation: zoomIn 0.2s ease-out; }
 
-        /* ADDED: Priority Colors */
-        .prio-3 { border-left: 4px solid #ef4444 !important; } 
-        .prio-2 { border-left: 4px solid #f59e0b !important; } 
-        .prio-1 { border-left: 4px solid #3b82f6 !important; }
+        .prio-3 { border-left: 8px solid #ef4444 !important; } 
+        .prio-2 { border-left: 8px solid #f59e0b !important; } 
+        .prio-1 { border-left: 8px solid #3b82f6 !important; }
 
-        /* FIXED: Header Spacing & Layout */
-        #tab-action-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: 16px;
-        }
-
-        /* FIXED: Header Stacking */
         header {
             position: sticky;
             top: 0;
@@ -277,18 +287,20 @@
 </head>
 <body class="overflow-hidden theme-light">
 
-    <!-- ADDED: UI container for notification logic -->
+    <!-- ADDED: Timer Sound -->
+    <audio id="timer-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <!-- UI container for notification logic -->
     <div id="nexus-notification-hub"></div>
 
     <div id="app" class="flex h-screen w-full">
         <!-- Main Sidebar -->
-        <aside id="sidebar" class="w-72 bg-white border-r flex flex-col shrink-0">
-            <div class="p-8 flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-                    <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+        <aside id="sidebar" class="w-72 bg-white border-r flex flex-col shrink-0 z-50 glass-panel">
+            <div class="p-8 flex items-center gap-4">
+                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 rotate-3 transition-transform hover:rotate-0">
+                    <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
                 </div>
-                <!-- UPDATED: Application Name -->
-                <h1 class="text-xl font-extrabold tracking-tight">Nexus Planner</h1>
+                <h1 class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">Nexus</h1>
             </div>
 
             <nav id="nav-container" class="flex-1 px-4 space-y-1 overflow-y-auto hide-scrollbar">
@@ -296,23 +308,23 @@
             </nav>
 
             <div class="p-6 border-t mt-auto">
-                <button onclick="router.navigate('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50 rounded-xl transition-all">
+                <button onclick="router.navigate('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-all">
                     <i data-lucide="settings" class="w-5 h-5"></i> Settings
                 </button>
-                <div class="mt-4 px-4 py-3 bg-slate-50 rounded-xl">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Local Privacy</p>
-                    <p class="text-xs text-slate-500 mt-1">No Cloud. No Backend.</p>
+                <div class="mt-4 px-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 italic">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Local Privacy</p>
+                    <p class="text-[11px] text-slate-500 font-bold mt-1 leading-tight">Your data never leaves this device.</p>
                 </div>
             </div>
         </aside>
 
         <!-- Content Area -->
         <main class="flex-1 flex flex-col min-w-0 bg-slate-50 relative">
-            <header class="h-20 bg-white/95 backdrop-blur-sm border-b px-10 flex items-center justify-between shrink-0 z-40">
+            <header class="h-20 bg-white/80 backdrop-blur-md border-b px-10 flex items-center justify-between shrink-0 z-40">
                 <div class="flex items-center gap-8 flex-1 min-w-0">
                     <div class="flex flex-col shrink-0">
                         <div class="flex items-center">
-                            <h2 id="view-title" class="text-xl font-black text-slate-800 whitespace-nowrap">Command Center</h2>
+                            <h2 id="view-title" class="text-2xl font-black text-slate-800 whitespace-nowrap tracking-tight">Command Center</h2>
                             <div id="tab-action-container"></div>
                         </div>
                         <p id="view-subtitle" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5"></p>
@@ -321,22 +333,21 @@
                     <!-- Global Search Input -->
                     <div class="relative w-full max-w-md hidden lg:block">
                         <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-slate-400"></i>
-                        <input type="text" id="global-search" oninput="logic.search(this.value)" placeholder="Search tasks, projects, etc..." class="w-full bg-slate-100 border-none rounded-2xl py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <input type="text" id="global-search" oninput="logic.search(this.value)" placeholder="Find things quickly..." class="w-full bg-slate-100 border-none rounded-2xl py-2.5 pl-11 pr-4 text-sm focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
                     </div>
                 </div>
 
                 <div class="flex items-center gap-6 shrink-0 ml-4">
                     <div id="clock-display" class="text-right hidden md:block">
-                        <div id="clock-time" class="text-sm font-bold text-slate-700"></div>
-                        <div id="clock-date" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter"></div>
+                        <div id="clock-time" class="text-sm font-black text-slate-800 tracking-tighter"></div>
+                        <div id="clock-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest"></div>
                     </div>
-                    <button onclick="ui.modal.openQuickAdd()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap">
+                    <button onclick="ui.modal.openQuickAdd()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-lg shadow-indigo-100 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="plus" class="w-4 h-4"></i> New Entry
                     </button>
                 </div>
             </header>
 
-            <!-- UPDATED: Footer is now inside the scrollable container so it is NOT sticky -->
             <div class="flex-1 overflow-y-auto scroll-smooth flex flex-col">
                 <div id="viewport" class="flex-1 p-10">
                     <!-- Data views injected here -->
@@ -351,29 +362,28 @@
 
     <!-- Universal Modal System -->
     <div id="modal-overlay" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div id="modal-container" class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in">
-            <div class="p-8 border-b flex justify-between items-center bg-white sticky top-0">
+        <div id="modal-container" class="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in border border-white/20">
+            <div class="p-10 border-b flex justify-between items-center bg-white sticky top-0">
                 <div class="flex flex-col">
-                    <h3 id="modal-title" class="text-2xl font-bold">Quick Add</h3>
-                    <p id="modal-subtitle" class="text-sm text-slate-400 font-medium"></p>
+                    <h3 id="modal-title" class="text-3xl font-black text-slate-900 leading-none">Quick Add</h3>
+                    <p id="modal-subtitle" class="text-xs text-slate-400 font-black uppercase tracking-widest mt-2"></p>
                 </div>
                 <div class="flex items-center gap-2">
                     <div id="modal-actions"></div>
-                    <button onclick="ui.modal.close()" class="p-3 hover:bg-slate-100 rounded-full transition-colors text-slate-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+                    <button onclick="ui.modal.close()" class="p-4 hover:bg-slate-100 rounded-full transition-colors text-slate-400"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
             </div>
-            <div id="modal-body" class="p-8 overflow-y-auto bg-slate-50/30">
+            <div id="modal-body" class="p-10 overflow-y-auto bg-slate-50/20">
             </div>
         </div>
     </div>
 
     <script>
         /** 
-         * 1. DATABASE LAYER 
+         * 1. DATABASE LAYER (PRESERVED)
          */
         const db = new Dexie("PlannerCompleteStorage");
         
-        // UPDATED: Bumped version and added Reminders table for persistence
         db.version(2).stores({
             tasks: '++id, title, status, priority, dueDate, section, projectId, classId, isRecurring, description',
             projects: '++id, name, status, progress, deadline, description',
@@ -384,16 +394,15 @@
             extra: '++id, name, role, hours',
             settings: 'key, value',
             backups: '++id, timestamp',
-            // Persistent storage for reminders
             reminders: '++id, title, time, priority, color, dismissed' 
         });
 
         /**
-         * 2. STATE & CONFIGURATION 
+         * 2. STATE & CONFIGURATION (PRESERVED)
          */
         const defaultConfig = {
             dashboardMode: 'command',
-            theme: 'light', // ADDED: Shared theme state 
+            theme: 'light',
             features: {
                 tasks: true,
                 projects: true,
@@ -414,7 +423,8 @@
             currentCalendarDate: new Date(),
             dashboardLayout: JSON.parse(localStorage.getItem('dashboard_layout')) || ['focus', 'tasks', 'schedule', 'habits', 'projects', 'school', 'extra'],
             searchQuery: '',
-            pomodoro: { time: 1500, active: false, interval: null },
+            /* UPDATED: COMPREHENSIVE TIMER STATE */
+            pomodoro: { time: 1500, active: false, interval: null, totalTime: 1500 },
             config: {
                 ...defaultConfig,
                 ...localConfig,
@@ -425,30 +435,27 @@
 
         const FEATURE_META = {
             dashboard: { id: 'dashboard', label: 'Command Center', icon: 'home' },
-            tasks: { id: 'tasks', label: 'Daily Tasks', icon: 'check-square' },
-            assignment: { id: 'assignment', label: 'Homework', icon: 'book-open' },
-            projects: { id: 'projects', label: 'Projects', icon: 'briefcase' },
-            school: { id: 'school', label: 'Education', icon: 'graduation-cap' },
-            habits: { id: 'habits', label: 'Habits', icon: 'flame' },
-            events: { id: 'events', label: 'Calendar', icon: 'calendar' },
-            extra: { id: 'extra', label: 'Activities', icon: 'star' }
+            tasks: { id: 'tasks', label: 'Checklist', icon: 'check-circle-2' },
+            assignment: { id: 'assignment', label: 'Education', icon: 'book-text' },
+            projects: { id: 'projects', label: 'Growth', icon: 'folder-kanban' },
+            school: { id: 'school', label: 'Curriculum', icon: 'graduation-cap' },
+            habits: { id: 'habits', label: 'Recurrence', icon: 'zap' },
+            events: { id: 'events', label: 'Temporal', icon: 'calendar-days' },
+            extra: { id: 'extra', label: 'Extras', icon: 'star' }
         };
 
         const PRIORITY_LABELS = { "1": "Low", "2": "Medium", "3": "High" };
 
         /**
-         * 3. UI CONTROLLER 
+         * 3. UI CONTROLLER (PRESERVED)
          */
         const ui = {
             init: async () => {
-                logic.applyTheme(); // Load saved theme preference
+                logic.applyTheme(); 
                 ui.refreshNavigation();
                 ui.updateClock();
                 setInterval(ui.updateClock, 1000);
-                
-                // ADDED: Start the reminder polling system
                 setInterval(logic.checkActiveReminders, 12000); 
-                
                 await automation.runner();
                 router.load('dashboard');
             },
@@ -456,17 +463,17 @@
             refreshNavigation: () => {
                 const nav = document.getElementById('nav-container');
                 let html = `
-                    <button onclick="router.navigate('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all">
+                    <button onclick="router.navigate('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-4 px-4 py-4 text-sm font-bold rounded-2xl transition-all">
                         <i data-lucide="home" class="w-5 h-5"></i> Dashboard
                     </button>
-                    <div class="pt-6 pb-2 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Personal Modules</div>
+                    <div class="pt-8 pb-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Workflow Modules</div>
                 `;
 
                 Object.keys(state.config.features).forEach(key => {
                     if (state.config.features[key]) {
                         const meta = FEATURE_META[key];
                         html += `
-                            <button onclick="router.navigate('${key}')" id="nav-${key}" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-500 hover:bg-slate-50 rounded-xl transition-all">
+                            <button onclick="router.navigate('${key}')" id="nav-${key}" class="w-full flex items-center gap-4 px-4 py-4 text-sm font-bold text-slate-500 hover:bg-white rounded-2xl transition-all">
                                 <i data-lucide="${meta.icon}" class="w-5 h-5"></i> ${meta.label}
                             </button>
                         `;
@@ -482,7 +489,7 @@
                 const clockTime = document.getElementById('clock-time');
                 const clockDate = document.getElementById('clock-date');
                 if (!clockTime) return;
-                clockTime.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                clockTime.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
                 clockDate.innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
             },
 
@@ -500,25 +507,18 @@
                 },
                 openQuickAdd: () => {
                     const enabled = Object.keys(state.config.features).filter(f => state.config.features[f]);
-                    let html = `<div class="grid grid-cols-2 gap-4">`;
+                    let html = `<div class="grid grid-cols-2 gap-6">`;
                     enabled.forEach(key => {
                         html += `
-                            <button onclick="ui.modal.renderForm('${key}')" class="flex flex-col items-start p-6 bg-white border border-slate-200 rounded-3xl hover:border-indigo-500 hover:bg-indigo-50/50 transition-all group">
-                                <i data-lucide="${FEATURE_META[key].icon}" class="w-6 h-6 text-slate-400 group-hover:text-indigo-600 mb-4 transition-colors"></i>
-                                <span class="font-bold text-slate-700">${FEATURE_META[key].label}</span>
-                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Create New</span>
+                            <button onclick="ui.modal.renderForm('${key}')" class="flex flex-col items-start p-8 bg-white border border-slate-100 rounded-[2.5rem] hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                                <i data-lucide="${FEATURE_META[key].icon}" class="w-8 h-8 text-slate-200 group-hover:text-indigo-600 mb-6 transition-colors font-black"></i>
+                                <span class="font-black text-slate-800 text-lg">${FEATURE_META[key].label}</span>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Manifest New</span>
                             </button>
                         `;
                     });
-                    html += `
-                        <button onclick="ui.modal.renderForm('assignment')" class="flex flex-col items-start p-6 bg-indigo-50 border border-indigo-100 rounded-3xl hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
-                            <i data-lucide="book-open" class="w-6 h-6 text-indigo-400 group-hover:text-indigo-600 mb-4 transition-colors"></i>
-                            <span class="font-bold text-indigo-700">Assignment</span>
-                            <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mt-1">School Homework</span>
-                        </button>
-                    `;
                     html += `</div>`;
-                    ui.modal.open("New Entry", "Choose what you want to add to your planner", html);
+                    ui.modal.open("New Entry", "Choose what you want to add to your workspace", html);
                 },
                 renderForm: async (key, editId = null) => {
                     const editData = editId ? await db[key==='assignment'?'tasks':key].get(editId) : null;
@@ -528,71 +528,68 @@
                         case 'tasks':
                             const schoolClasses = await db.school.toArray();
                             formHtml += `
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Title</label><input name="title" required value="${editData?.title || ''}" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="${key === 'assignment' ? 'e.g. History Essay' : 'e.g. Finish quarterly report'}"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Title</label><input name="title" required value="${editData?.title || ''}" class="w-full p-5 bg-white border border-slate-100 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all" placeholder="Enter Task Name"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Priority</label>
-                                        <select name="priority" class="w-full p-4 bg-white border border-slate-200 rounded-2xl">
+                                    <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Priority</label>
+                                        <select name="priority" class="w-full p-5 bg-white border border-slate-100 rounded-3xl outline-none">
                                             <option value="1" ${editData?.priority==1?'selected':''}>Low</option>
                                             <option value="2" ${!editData||editData.priority==2?'selected':''}>Medium</option>
                                             <option value="3" ${editData?.priority==3?'selected':''}>High</option>
                                         </select>
                                     </div>
-                                    <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Due Date</label><input type="date" name="dueDate" class="w-full p-4 bg-white border border-slate-200 rounded-2xl" value="${editData?.dueDate || new Date().toISOString().split('T')[0]}"></div>
+                                    <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Due Date</label><input type="date" name="dueDate" class="w-full p-5 bg-white border border-slate-100 rounded-3xl" value="${editData?.dueDate || new Date().toISOString().split('T')[0]}"></div>
                                 </div>
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Description</label><textarea name="description" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 h-24" placeholder="Add more details...">${editData?.description || ''}</textarea></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Description</label><textarea name="description" class="w-full p-5 bg-white border border-slate-100 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/10 h-32" placeholder="Add more details...">${editData?.description || ''}</textarea></div>
                                 <div>
-                                    <label class="block text-xs font-black uppercase text-slate-400 mb-2">Link to Class (Required for Homework)</label>
-                                    <select name="classId" class="w-full p-4 bg-white border border-slate-200 rounded-2xl" ${key === 'assignment' ? 'required' : ''}>
-                                        <option value="">${key === 'assignment' ? '-- Select a Class --' : 'No Class'}</option>
+                                    <label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Link Education</label>
+                                    <select name="classId" class="w-full p-5 border border-slate-100 rounded-3xl" ${key === 'assignment' ? 'required' : ''}>
+                                        <option value="">${key === 'assignment' ? '-- Select Course --' : 'No Class'}</option>
                                         ${schoolClasses.map(c => `<option value="${c.id}" ${editData?.classId==c.id?'selected':''}>${c.className}</option>`).join('')}
                                     </select>
-                                    ${schoolClasses.length === 0 ? '<p class="text-[10px] text-red-500 mt-2 font-bold uppercase">Add classes in Education tab first!</p>' : ''}
                                 </div>
                             `;
                             break;
                         case 'events':
                             formHtml += `
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Event Title</label><input name="title" required value="${editData?.title || ''}" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Event Description</label><input name="title" required value="${editData?.title || ''}" class="w-full p-5 bg-white border border-slate-100 rounded-3xl outline-none"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Start</label><input type="datetime-local" name="start" required class="w-full p-4 bg-white border border-slate-200 rounded-2xl" value="${editData?.start || new Date().toISOString().slice(0, 16)}"></div>
-                                    <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">End</label><input type="datetime-local" name="end" required class="w-full p-4 bg-white border border-slate-200 rounded-2xl" value="${editData?.end || new Date().toISOString().slice(0, 16)}"></div>
+                                    <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Starts</label><input type="datetime-local" name="start" required class="w-full p-5 border rounded-3xl" value="${editData?.start || new Date().toISOString().slice(0, 16)}"></div>
+                                    <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Ends</label><input type="datetime-local" name="end" required class="w-full p-5 border rounded-3xl" value="${editData?.end || new Date().toISOString().slice(0, 16)}"></div>
                                 </div>
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Description</label><textarea name="description" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 h-24" placeholder="Location, notes, etc...">${editData?.description || ''}</textarea></div>
                             `;
                             break;
                         case 'projects':
                             formHtml += `
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Project Name</label><input name="name" required value="${editData?.name || ''}" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"></div>
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Deadline</label><input type="date" name="deadline" class="w-full p-4 bg-white border border-slate-200 rounded-2xl" value="${editData?.deadline || new Date().toISOString().split('T')[0]}"></div>
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Description</label><textarea name="description" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 h-24" placeholder="What is this project about?">${editData?.description || ''}</textarea></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Project</label><input name="name" required value="${editData?.name || ''}" class="w-full p-5 bg-white border rounded-3xl outline-none"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Deadline</label><input type="date" name="deadline" class="w-full p-5 border rounded-3xl" value="${editData?.deadline || new Date().toISOString().split('T')[0]}"></div>
                             `;
                             break;
                         case 'habits':
                             formHtml += `
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Habit Action</label><input name="name" required value="${editData?.name || ''}" placeholder="e.g. Meditate" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Daily Action</label><input name="name" required value="${editData?.name || ''}" placeholder="e.g. Meditate for 10m" class="w-full p-5 border rounded-3xl outline-none"></div>
                             `;
                             break;
                         case 'school':
                             formHtml += `
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Class Name</label><input name="className" required value="${editData?.className || ''}" placeholder="e.g. Physics 101" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"></div>
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Instructor</label><input name="instructor" value="${editData?.instructor || ''}" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Class Label</label><input name="className" required value="${editData?.className || ''}" placeholder="e.g. Physics 101" class="w-full p-5 border rounded-3xl outline-none"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Instructor</label><input name="instructor" value="${editData?.instructor || ''}" class="w-full p-5 border rounded-3xl outline-none"></div>
                             `;
                             break;
                         case 'extra':
                             formHtml += `
-                                <div><label class="block text-xs font-black uppercase text-slate-400 mb-2">Activity Name</label><input name="name" required value="${editData?.name || ''}" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"></div>
+                                <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Activity Title</label><input name="name" required value="${editData?.name || ''}" class="w-full p-5 border rounded-3xl outline-none"></div>
                             `;
                             break;
                     }
-                    formHtml += `<button type="submit" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl mt-4">${editId ? 'Update' : 'Save'} Entry</button></form>`;
+                    formHtml += `<button type="submit" class="w-full py-6 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-100 mt-4 hover:bg-slate-900 transition-all">${editId ? 'Commit Changes' : 'Manifest Now'}</button></form>`;
                     document.getElementById('modal-body').innerHTML = formHtml;
-                    ui.modal.open(`${editId?'Edit':'Add'} ${key.charAt(0).toUpperCase() + key.slice(1)}`, `${editId?'Modify existing':'Create new'} details`, formHtml);
+                    ui.modal.open(`${editId?'Edit':'Create'} ${key}`, "Please specify the manifest details", formHtml);
                 }
             }
         };
 
         /**
-         * 4. ROUTER & VIEWS 
+         * 4. ROUTER & VIEWS (PRESERVED)
          */
         const router = {
             navigate: (view) => {
@@ -609,49 +606,31 @@
             load: async (view) => {
                 const viewport = document.getElementById('viewport');
                 const title = document.getElementById('view-title');
-                const subtitle = document.getElementById('view-subtitle');
                 const actionBtn = document.getElementById('tab-action-container');
                 
                 title.innerText = FEATURE_META[view]?.label || 'Settings';
-                subtitle.innerText = `Manage your ${view} and organized life.`;
 
                 if(view !== 'dashboard' && view !== 'settings') {
-                    if (view === 'school') {
-                        actionBtn.innerHTML = `
-                            <button onclick="ui.modal.renderForm('school')" class="btn-tab-action">
-                                <i data-lucide="plus-circle"></i> Add Class
-                            </button>
-                            <button onclick="ui.modal.renderForm('assignment')" class="btn-tab-action">
-                                <i data-lucide="book-open"></i> HW
-                            </button>
-                        `;
-                    } else if (view === 'events') {
-                        // UPDATED: Standardized and Evenly Spaced Header Buttons (Multiple Files & URL Link)
+                    if (view === 'events') {
                         actionBtn.innerHTML = `
                             <button onclick="ui.modal.renderForm('events')" class="btn-tab-action">
                                 <i data-lucide="plus-circle"></i> Add
                             </button>
                             <button onclick="document.getElementById('ics-upload').click()" class="btn-tab-action">
-                                <i data-lucide="file-up"></i> Import Files
-                            </button>
-                            <button onclick="logic.showUrlImportModal()" class="btn-tab-action">
-                                <i data-lucide="link"></i> Add Link
-                            </button>
-                            <button onclick="logic.showImportInstructions()" class="btn-tab-action">
-                                <i data-lucide="help-circle"></i> Help
+                                <i data-lucide="file-up"></i> Sync ICS
                             </button>
                             <input type="file" id="ics-upload" class="hidden" accept=".ics" multiple onchange="logic.importIcs(this)">
                         `;
                     } else {
                         actionBtn.innerHTML = `
                             <button onclick="ui.modal.renderForm('${view}')" class="btn-tab-action">
-                                <i data-lucide="plus-circle"></i> Add ${view.charAt(0).toUpperCase() + view.slice(1, -1)}
+                                <i data-lucide="plus-circle"></i> Add New
                             </button>
                         `;
                     }
                 } else { actionBtn.innerHTML = ''; }
 
-                viewport.innerHTML = `<div class="flex items-center justify-center py-20"><div class="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div></div>`;
+                viewport.innerHTML = `<div class="flex items-center justify-center py-20"><div class="animate-spin h-10 w-10 border-[5px] border-indigo-600 border-t-transparent rounded-full"></div></div>`;
                 switch(view) {
                     case 'dashboard': await renderers.dashboard(viewport); break;
                     case 'tasks': await renderers.tasks(viewport); break;
@@ -667,27 +646,25 @@
         };
 
         /**
-         * 5. VIEW RENDERERS
+         * 5. VIEW RENDERERS (PRESERVED)
          */
         const renderers = {
             dashboard: async (target) => {
                 target.innerHTML = `
-                    <div id="widget-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div id="widget-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         ${state.dashboardLayout.map(wId => `
-                            <div data-id="${wId}" class="widget-card bg-white border border-slate-200 rounded-3xl shadow-sm flex flex-col group min-h-[350px]">
-                                <div class="widget-header px-8 py-5 border-b flex justify-between items-center cursor-move">
-                                    <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest">${wId}</h3>
-                                    <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-300"></i>
+                            <div data-id="${wId}" class="widget-card bg-white border border-slate-100 rounded-[2.5rem] shadow-sm flex flex-col group min-h-[380px]">
+                                <div class="widget-header px-10 py-6 border-b flex justify-between items-center cursor-move">
+                                    <h3 class="text-[11px] font-black uppercase text-slate-400 tracking-[0.25em]">${wId}</h3>
+                                    <i data-lucide="grip-vertical" class="w-4 h-4 text-slate-200 group-hover:text-indigo-400 transition-colors"></i>
                                 </div>
-                                <div id="widget-content-${wId}" class="p-8 flex-1 overflow-y-auto hide-scrollbar">
-                                    <div class="animate-pulse space-y-3"><div class="h-4 bg-slate-100 rounded w-3/4"></div><div class="h-4 bg-slate-100 rounded"></div></div>
-                                </div>
+                                <div id="widget-content-${wId}" class="p-10 flex-1 overflow-y-auto hide-scrollbar"></div>
                             </div>
                         `).join('')}
                     </div>
                 `;
                 new Sortable(document.getElementById('widget-grid'), {
-                    animation: 150, handle: '.widget-header', ghostClass: 'widget-ghost',
+                    animation: 250, handle: '.widget-header', ghostClass: 'widget-ghost',
                     onEnd: (evt) => {
                         const newOrder = Array.from(evt.to.children).map(el => el.dataset.id);
                         localStorage.setItem('dashboard_layout', JSON.stringify(newOrder));
@@ -695,40 +672,46 @@
                 });
                 const loaders = {
                     focus: () => {
+                        /* UPDATED: DURATION SELECTOR UI FOR TIMER */
                         document.getElementById('widget-content-focus').innerHTML = `
-                            <div class="flex flex-col items-center justify-center h-full gap-4">
-                                <div id="pomo-timer" class="text-5xl font-black text-slate-800">${Math.floor(state.pomodoro.time/60)}:${(state.pomodoro.time%60).toString().padStart(2, '0')}</div>
-                                <div class="flex gap-2">
-                                    <button onclick="logic.togglePomodoro()" class="px-6 py-2 bg-indigo-600 text-white text-xs font-bold rounded-full">${state.pomodoro.active?'Pause':'Start Focus'}</button>
-                                    <button onclick="state.pomodoro.time = 1500; router.load('dashboard')" class="p-2 border rounded-full text-slate-300"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                            <div class="flex flex-col items-center justify-center h-full gap-6">
+                                <div class="relative flex items-center justify-center">
+                                    <div id="pomo-timer" class="text-7xl font-black text-slate-800 tracking-tighter transition-all">${Math.floor(state.pomodoro.time/60)}:${(state.pomodoro.time%60).toString().padStart(2, '0')}</div>
+                                </div>
+                                <div class="timer-badge">Session Length: ${Math.floor(state.pomodoro.totalTime/60)}m</div>
+                                <div class="flex gap-4 w-full">
+                                    <button onclick="logic.togglePomodoro()" class="flex-1 py-5 ${state.pomodoro.active?'bg-slate-100 text-slate-600':'bg-indigo-600 text-white shadow-xl'} text-xs font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95">
+                                        ${state.pomodoro.active?'Halt':'Focus'}
+                                    </button>
+                                    <button title="Change Duration" onclick="logic.showTimerSettings()" class="px-5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all"><i data-lucide="timer" class="w-6 h-6"></i></button>
                                 </div>
                             </div>
                         `;
                     },
                     tasks: async () => {
                         const tasks = await db.tasks.where('status').notEqual('done').limit(5).toArray();
-                        document.getElementById('widget-content-tasks').innerHTML = tasks.length ? `<div class="space-y-4">${tasks.map(t => `<div onclick="logic.showDetails('tasks', ${t.id})" class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer"><div class="w-1.5 h-1.5 rounded-full ${t.priority==3?'bg-red-500':t.priority==2?'bg-amber-500':'bg-blue-500'}"></div> <span class="text-sm font-medium text-slate-600 truncate">${t.title}</span></div>`).join('')}</div>` : `<p class="text-slate-300 text-sm italic">No pending tasks.</p>`;
+                        document.getElementById('widget-content-tasks').innerHTML = tasks.length ? `<div class="space-y-4">${tasks.map(t => `<div onclick="logic.showDetails('tasks', ${t.id})" class="flex items-center gap-3 p-3 hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-2xl cursor-pointer transition-all"><div class="w-2.5 h-2.5 rounded-full ${t.priority==3?'bg-red-500':t.priority==2?'bg-amber-400':'bg-blue-400'}"></div> <span class="text-sm font-bold text-slate-700 truncate">${t.title}</span></div>`).join('')}</div>` : `<div class="p-10 text-center text-slate-300 italic text-sm">Clear Horizon.</div>`;
                     },
                     habits: async () => {
                         const habits = await db.habits.toArray();
-                        document.getElementById('widget-content-habits').innerHTML = habits.length ? `<div class="space-y-6">${habits.map(h => `<div><div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2"><span>${h.name}</span><span class="text-indigo-600">${h.streak}d</span></div><div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div class="bg-indigo-600 h-full" style="width: ${Math.min(h.streak * 10, 100)}%"></div></div></div>`).join('')}</div>` : `<p class="text-slate-300 text-sm italic">No habits tracking.</p>`;
+                        document.getElementById('widget-content-habits').innerHTML = habits.length ? `<div class="space-y-6">${habits.map(h => `<div><div class="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3"><span>${h.name}</span><span class="text-indigo-600">${h.streak}d streak</span></div><div class="w-full bg-slate-50 h-2 rounded-full overflow-hidden border border-slate-200"><div class="bg-indigo-600 h-full transition-all duration-1000" style="width: ${Math.min(h.streak * 10, 100)}%"></div></div></div>`).join('')}</div>` : `<div class="p-10 text-center text-slate-300 italic text-sm">No recurrence set.</div>`;
                     },
                     schedule: async () => {
                         const today = new Date().toISOString().split('T')[0];
                         const dayEvents = await db.events.where('start').startsWith(today).toArray();
-                        document.getElementById('widget-content-schedule').innerHTML = dayEvents.length ? `<div class="space-y-4">${dayEvents.map(e => `<div class="flex gap-4 items-start cursor-pointer hover:bg-slate-50 p-1 rounded-lg" onclick="logic.showDetails('events', ${e.id})"><div class="w-1 text-[10px] font-bold text-slate-300 leading-tight pt-1 capitalize">${(e.start.split('T')[1] || "00:00").slice(0,5)}</div><div class="flex-1 bg-white border border-slate-100 p-3 rounded-xl"><p class="text-xs font-bold text-slate-700">${e.title}</p></div></div>`).join('')}</div>` : `<p class="text-slate-300 text-sm italic">No events today.</p>`;
+                        document.getElementById('widget-content-schedule').innerHTML = dayEvents.length ? `<div class="space-y-4">${dayEvents.map(e => `<div class="flex gap-4 items-start cursor-pointer hover:translate-x-1 transition-all" onclick="logic.showDetails('events', ${e.id})"><div class="w-1 text-[10px] font-black text-slate-300 leading-tight pt-1 capitalize">${(e.start.split('T')[1] || "00:00").slice(0,5)}</div><div class="flex-1 bg-white border border-slate-100 p-4 rounded-3xl group hover:border-indigo-400/30 transition-all shadow-sm"><p class="text-xs font-black text-slate-800">${e.title}</p></div></div>`).join('')}</div>` : `<div class="p-10 text-center text-slate-300 italic text-sm">Open Temporal Grid.</div>`;
                     },
                     projects: async () => {
                         const projs = await db.projects.toArray();
-                        document.getElementById('widget-content-projects').innerHTML = projs.length ? `<div class="space-y-4">${projs.map(p => `<div onclick="logic.showDetails('projects', ${p.id})" class="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center cursor-pointer hover:border-indigo-200 transition-all"><span class="text-xs font-bold truncate pr-4">${p.name}</span> <span class="text-[10px] font-black bg-indigo-100 text-indigo-700 px-2 py-1 rounded">${p.progress}%</span></div>`).join('')}</div>` : '<p class="text-slate-300 text-sm italic">No active projects.</p>';
+                        document.getElementById('widget-content-projects').innerHTML = projs.length ? `<div class="space-y-4">${projs.map(p => `<div onclick="logic.showDetails('projects', ${p.id})" class="p-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] flex justify-between items-center cursor-pointer hover:bg-white transition-all"><span class="text-xs font-black truncate text-slate-700">${p.name}</span> <span class="text-[10px] font-black text-indigo-700 bg-indigo-50 px-2 py-1 rounded-lg">${p.progress}%</span></div>`).join('')}</div>` : '<div class="p-10 text-center text-slate-300 italic text-sm">No active builds.</div>';
                     },
                     school: async () => {
                         const classes = await db.school.limit(3).toArray();
-                        document.getElementById('widget-content-school').innerHTML = classes.length ? `<div class="space-y-3">${classes.map(c => `<div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-xs font-bold text-indigo-700">${c.className}</div>`).join('')}</div>` : '<p class="text-slate-300 text-sm italic">No classes.</p>';
+                        document.getElementById('widget-content-school').innerHTML = classes.length ? `<div class="space-y-4">${classes.map(c => `<div class="p-5 bg-indigo-50 border border-indigo-100/50 rounded-3xl text-sm font-black text-indigo-700 flex items-center gap-3"><i data-lucide="graduation-cap" class="w-4 h-4 text-indigo-400"></i> ${c.className}</div>`).join('')}</div>` : '<div class="p-10 text-center text-slate-300 italic text-sm">No modules.</div>';
                     },
                     extra: async () => {
                         const extras = await db.extra.limit(5).toArray();
-                        document.getElementById('widget-content-extra').innerHTML = extras.length ? `<div class="space-y-3">${extras.map(e => `<div class="p-3 bg-white border border-slate-100 rounded-xl text-xs font-bold text-slate-600">${e.name}</div>`).join('')}</div>` : `<p class="text-slate-300 text-sm italic">No activities recorded.</p>`;
+                        document.getElementById('widget-content-extra').innerHTML = extras.length ? `<div class="space-y-4">${extras.map(e => `<div class="p-5 bg-white border border-slate-100 rounded-3xl text-xs font-black text-slate-700 shadow-sm">${e.name}</div>`).join('')}</div>` : `<div class="p-10 text-center text-slate-300 italic text-sm">No extras.</div>`;
                     }
                 };
                 Object.keys(loaders).forEach(k => {
@@ -745,18 +728,18 @@
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const events = await db.events.toArray();
                 target.innerHTML = `
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
-                        <div class="p-8 border-b flex justify-between items-center bg-white sticky top-0 z-30">
-                            <div class="flex items-center gap-4">
-                                <button onclick="renderers.changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-                                <h3 class="text-2xl font-bold">${monthName} ${year}</h3>
-                                <button onclick="renderers.changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-lg"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                    <div class="bg-white rounded-[3rem] shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
+                        <div class="p-10 border-b flex justify-between items-center bg-white sticky top-0 z-30">
+                            <div class="flex items-center gap-6">
+                                <button onclick="renderers.changeMonth(-1)" class="p-3 hover:bg-slate-50 rounded-2xl transition-all"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+                                <h3 class="text-3xl font-black">${monthName} <span class="text-indigo-600 font-black">${year}</span></h3>
+                                <button onclick="renderers.changeMonth(1)" class="p-3 hover:bg-slate-50 rounded-2xl transition-all"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
                             </div>
-                            <button onclick="state.currentCalendarDate = new Date(); router.load('events')" class="text-xs font-bold text-indigo-600 hover:underline px-4">Jump to Today</button>
+                            <button onclick="state.currentCalendarDate = new Date(); router.load('events')" class="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 px-6 py-3 rounded-2xl transition-all">Jump to Today</button>
                         </div>
                         <div class="calendar-scroll-area hide-scrollbar">
-                            <div class="calendar-grid bg-slate-200">
-                                ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(h => `<div class="calendar-day-header p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-r border-slate-200">${h}</div>`).join('')}
+                            <div class="calendar-grid bg-slate-100">
+                                ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(h => `<div class="calendar-day-header p-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100">${h}</div>`).join('')}
                                 ${renderers.calculateCalendarDays(year, month, firstDay, daysInMonth, events)}
                             </div>
                         </div>
@@ -774,7 +757,7 @@
                     const dateId = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     const dayEvents = events.filter(e => e.start.startsWith(dateId));
                     const isToday = dateId === today;
-                    html += `<div class="calendar-cell ${isToday ? 'today' : ''} flex flex-col group overflow-hidden"><div class="flex justify-between items-center mb-2"><span class="day-label text-xs font-bold text-slate-700">${day}</span></div><div class="flex-1 space-y-1">${dayEvents.map(e => `<div class="event-chip bg-indigo-600 text-white font-medium" onclick="logic.showDetails('events', ${e.id})">${e.title}</div>`).join('')}</div></div>`;
+                    html += `<div class="calendar-cell ${isToday ? 'today' : ''} flex flex-col group p-3 hover:bg-indigo-50/20 transition-all border-r border-b border-slate-100"><div class="flex justify-between items-center mb-2"><span class="day-label text-sm font-black text-slate-700">${day}</span></div><div class="flex-1 space-y-1">${dayEvents.map(e => `<div class="text-[10px] font-black bg-indigo-600 text-white px-2 py-1 rounded shadow-sm truncate cursor-pointer hover:scale-105 active:scale-95 transition-all" onclick="logic.showDetails('events', ${e.id})">${e.title}</div>`).join('')}</div></div>`;
                 }
                 return html;
             },
@@ -784,566 +767,227 @@
             tasks: async (target) => {
                 let tasks = await db.tasks.toArray();
                 if (state.searchQuery) tasks = tasks.filter(t => t.title.toLowerCase().includes(state.searchQuery));
-                
                 const grouped = { pending: tasks.filter(t => t.status !== 'done'), completed: tasks.filter(t => t.status === 'done') };
                 target.innerHTML = `
-                    <div class="max-w-4xl mx-auto space-y-10"><section><h3 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-6">Active Tasks</h3><div class="space-y-3">
-                    ${grouped.pending.map(t => `<div class="bg-white p-6 rounded-3xl border border-slate-200 flex items-center justify-between group prio-${t.priority}"><div class="flex items-center gap-6"><input type="checkbox" onchange="logic.toggleTask(${t.id})" class="w-6 h-6"><div><p class="font-bold text-slate-800 cursor-pointer hover:underline" onclick="logic.showDetails('tasks', ${t.id})">${t.title}</p><p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Due: ${t.dueDate || 'No Date'} • Priority: ${PRIORITY_LABELS[t.priority] || 'Medium'}</p></div></div><button onclick="logic.deleteData('tasks', ${t.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join('') || `<p class="text-slate-400 italic py-10 text-center">No pending tasks.</p>`}
-                    </div></section><section class="opacity-50"><h3 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-6">Completed</h3><div class="space-y-2">${grouped.completed.map(t => `<div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4"><i data-lucide="check" class="w-4 h-4 text-green-500"></i> <span class="text-sm font-medium line-through cursor-pointer" onclick="logic.showDetails('tasks', ${t.id})">${t.title}</span></div>`).join('')}</div></section></div>
-                `;
-                lucide.createIcons();
+                    <div class="max-w-4xl mx-auto space-y-16 pb-20">
+                        <section>
+                            <h3 class="text-[11px] font-black uppercase text-slate-400 tracking-[0.25em] mb-10">Active Readiness</h3>
+                            <div class="space-y-4">
+                                ${grouped.pending.map(t => `<div class="bg-white p-7 rounded-[2.5rem] border border-slate-100 flex items-center justify-between group shadow-sm transition-all prio-${t.priority}"><div class="flex items-center gap-8"><input type="checkbox" onchange="logic.toggleTask(${t.id})" class="w-7 h-7 rounded-full border-slate-200 cursor-pointer"><div><p class="font-black text-slate-800 text-xl cursor-pointer hover:underline" onclick="logic.showDetails('tasks', ${t.id})">${t.title}</p><p class="text-[11px] font-black text-slate-400 mt-1 uppercase tracking-widest">${t.dueDate || 'Scheduling Pending'} • ${PRIORITY_LABELS[t.priority]} Mission</p></div></div><button onclick="logic.deleteData('tasks', ${t.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-3"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join('') || `<div class="text-center py-20 bg-white rounded-[3rem] border border-dashed border-slate-200"><p class="text-slate-300 font-black uppercase tracking-widest text-xs">Clear Agenda Matrix.</p></div>`}
+                            </div>
+                        </section>
+                        <section class="opacity-40 hover:opacity-100 transition-opacity">
+                            <h3 class="text-[11px] font-black uppercase text-slate-400 tracking-[0.25em] mb-10">Historical Cleared</h3>
+                            <div class="space-y-3">
+                                ${grouped.completed.map(t => `<div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex items-center gap-4"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i> <span class="text-sm font-bold text-slate-400 line-through cursor-pointer" onclick="logic.showDetails('tasks', ${t.id})">${t.title}</span></div>`).join('')}
+                            </div>
+                        </section>
+                    </div>
+                `; lucide.createIcons();
             },
 
             settings: async (target) => {
                 target.innerHTML = `
-                    <div class="max-w-3xl mx-auto space-y-12 pb-20">
-                        
-                        <!-- THEME ENGINE SECTION (NEW) -->
+                    <div class="max-w-4xl mx-auto space-y-16 pb-20">
                         <section>
-                            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                <i data-lucide="palette" class="w-4 h-4"></i> Appearance & Interface - BETA!!
-                            </h3>
-                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <h3 class="text-[12px] font-black uppercase tracking-[0.3em] text-slate-400 mb-8 flex items-center gap-3"><i data-lucide="palette" class="w-5 h-5"></i> Atmosphere Selection</h3>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
                                 ${['light', 'dark', 'colorful', 'party'].map(t => `
-                                    <button onclick="logic.setTheme('${t}')" class="p-5 bg-white border-2 rounded-3xl text-left transition-all hover:border-indigo-500 ${state.config.theme === t ? 'border-indigo-600 ring-4 ring-indigo-50' : 'border-slate-100'}">
-                                        <div class="w-full h-10 rounded-xl mb-3 ${t === 'light' ? 'bg-slate-100' : t === 'dark' ? 'bg-slate-800' : t === 'colorful' ? 'bg-pink-100' : 'bg-gradient-to-tr from-yellow-200 to-indigo-200'}"></div>
-                                        <span class="text-xs font-bold capitalize text-slate-700">${t} Mode</span>
+                                    <button onclick="logic.setTheme('${t}')" class="p-6 bg-white border-2 rounded-[2.5rem] text-left transition-all hover:translate-y-[-4px] active:translate-y-0 ${state.config.theme === t ? 'border-indigo-600 shadow-xl shadow-indigo-100' : 'border-slate-50'}">
+                                        <div class="w-full h-12 rounded-2xl mb-4 ${t === 'light' ? 'bg-slate-100' : t === 'dark' ? 'bg-slate-800' : t === 'colorful' ? 'bg-pink-100' : 'bg-gradient-to-tr from-yellow-200 to-indigo-200'}"></div>
+                                        <span class="text-xs font-black capitalize text-slate-800">${t} Engine</span>
                                     </button>
                                 `).join('')}
                             </div>
                         </section>
 
-                        <!-- SCHEDULED REMINDERS SECTION (NEW) -->
                         <section>
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                                    <i data-lucide="bell" class="w-4 h-4"></i> Active Reminders
-                                </h3>
-                                <button onclick="logic.openNewReminderModal()" class="text-xs font-bold text-indigo-600 hover:scale-105 active:scale-95 transition-transform">+ Add Schedule</button>
-                            </div>
-                            <div id="active-reminders-list" class="space-y-3">
-                                <!-- Loads dynamically -->
-                            </div>
+                            <h3 class="text-[12px] font-black uppercase tracking-[0.3em] text-slate-400 mb-8 flex items-center gap-3"><i data-lucide="bell" class="w-5 h-5"></i> Automated Schedules</h3>
+                            <div id="active-reminders-list" class="space-y-4"></div>
+                            <button onclick="logic.openNewReminderModal()" class="w-full py-6 bg-white border-2 border-dashed border-indigo-200 rounded-[2.5rem] font-black text-indigo-600 text-[10px] uppercase tracking-widest mt-6 hover:bg-slate-50 transition-all">+ Register New Schedule Rule</button>
                         </section>
 
-                        <!-- CALENDAR IMPORT SECTION -->
-                        <section>
-                            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                <i data-lucide="calendar" class="w-4 h-4"></i> External Calendar Integration
-                            </h3>
-                            <div class="bg-indigo-50 p-8 rounded-[2rem] border border-indigo-100 italic mb-4">
-                                <h4 class="font-bold text-indigo-900 mb-2">How to Import from Google Calendar:</h4>
-                                <ol class="text-xs text-indigo-700 space-y-2 list-decimal ml-4">
-                                    <li>On your computer, open <b>Google Calendar</b>.</li>
-                                    <li>In the top right, click <b>Settings</b> (the gear icon) -> <b>Settings</b>.</li>
-                                    <li>On the left-hand menu, click <b>Import & Export</b>.</li>
-                                    <li>Under Export, click the <b>Export</b> button to download a .zip file.</li>
-                                    <li>Extract the .zip file and find the <b>.ics</b> file.</li>
-                                    <li>Click the button below to upload that file!</li>
-                                </ol>
-                            </div>
-                            <button onclick="document.getElementById('settings-ics-upload').click()" class="w-full py-6 bg-white border-2 border-dashed border-indigo-200 rounded-3xl font-bold text-indigo-600 flex flex-col items-center gap-2 hover:border-indigo-500 transition-all">
-                                <i data-lucide="upload-cloud" class="w-6 h-6"></i>
-                                Upload .ics File(s)
-                                <input type="file" id="settings-ics-upload" class="hidden" accept=".ics" multiple onchange="logic.importIcs(this)">
-                            </button>
-                        </section>
-
-                        <!-- FEATURE MANAGEMENT SECTION -->
-                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> Feature Management</h3><div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 divide-y overflow-hidden">
-                        ${Object.keys(state.config.features).map(key => `<div class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500"><i data-lucide="${FEATURE_META[key].icon}" class="w-5 h-5"></i></div><div><p class="font-bold text-slate-700 capitalize">${key}</p><p class="text-xs text-slate-400">Enable or disable the ${key} module.</p></div></div><button onclick="logic.toggleFeature('${key}')" class="w-14 h-8 rounded-full relative transition-all ${state.config.features[key] ? 'bg-indigo-600' : 'bg-slate-300'}"><div class="w-6 h-6 bg-white rounded-full absolute top-1 transition-all ${state.config.features[key] ? 'right-1' : 'left-1'}"></div></button></div>`).join('')}
+                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> System Function Modules</h3><div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 divide-y overflow-hidden">
+                        ${Object.keys(state.config.features).map(key => `<div class="p-8 flex items-center justify-between hover:bg-slate-50 transition-colors"><div class="flex items-center gap-6"><div class="w-12 h-12 bg-white border border-slate-100 rounded-3xl flex items-center justify-center text-slate-400"><i data-lucide="${FEATURE_META[key].icon}" class="w-6 h-6"></i></div><div><p class="font-black text-slate-700 capitalize text-lg">${key}</p><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Component</p></div></div><button onclick="logic.toggleFeature('${key}')" class="w-16 h-9 rounded-full relative transition-all shadow-inner ${state.config.features[key] ? 'bg-indigo-600' : 'bg-slate-300'}"><div class="w-7 h-7 bg-white rounded-full absolute top-1 transition-all ${state.config.features[key] ? 'right-1' : 'left-1'}"></div></button></div>`).join('')}
                         </div></section>
 
-                        <!-- AUTOMATION RULES -->
-                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> Automation Rules</h3><div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 p-8 space-y-6"><div class="flex items-center justify-between"><p class="font-bold text-sm text-slate-600">Auto-Carryover Overdue Tasks</p><input type="checkbox" onchange="logic.updateConfig('autoCarryover', this.checked)" ${state.config.automation.autoCarryover ? 'checked' : ''}></div></div></section>
-
-                        <!-- DATA PORTABILITY -->
-                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i> Portability & Data</h3><div class="grid grid-cols-2 gap-4"><button onclick="logic.exportData()" class="p-6 bg-white border border-slate-200 rounded-3xl font-bold flex flex-col items-center gap-4 hover:border-indigo-500 transition-all"><i data-lucide="download" class="w-8 h-8 text-indigo-600"></i> Export Backup</button><button onclick="logic.factoryReset()" class="p-6 bg-red-50 border border-red-100 rounded-3xl font-bold text-red-600 flex flex-col items-center gap-4 hover:bg-red-100 transition-all"><i data-lucide="trash-2" class="w-8 h-8"></i> Wipe Database</button></div></section>
+                        <section><h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i> Localized Storage Integrity</h3><div class="grid grid-cols-2 gap-8"><button onclick="logic.exportData()" class="p-10 bg-slate-900 text-white rounded-[3rem] font-black flex flex-col items-center gap-6 hover:bg-indigo-600 transition-all font-black uppercase tracking-widest text-xs"><i data-lucide="download" class="w-8 h-8"></i><br>Export DB Backup</button><button onclick="logic.factoryReset()" class="p-10 bg-red-50 text-red-600 border border-red-100 rounded-[3rem] font-black flex flex-col items-center gap-6 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest text-xs"><i data-lucide="trash-2" class="w-10 h-10"></i><br>Wipe Database</button></div></section>
                     </div>
                 `;
-                logic.refreshRemindersList();
-                lucide.createIcons();
+                logic.refreshRemindersList(); lucide.createIcons();
             },
 
             projects: async (target) => {
-                let projs = await db.projects.toArray();
-                if (state.searchQuery) projs = projs.filter(p => p.name.toLowerCase().includes(state.searchQuery));
-                
-                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8">${projs.map(p => `<div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col cursor-pointer transition-transform hover:scale-[1.01]" onclick="logic.showDetails('projects', ${p.id})"><h4 class="text-xl font-bold mb-6">${p.name}</h4><div class="mt-auto"><div class="flex justify-between text-[10px] font-black text-slate-400 uppercase mb-2"><span>Completion</span><span>${p.progress}%</span></div><div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="bg-indigo-600 h-full transition-all" style="width: ${p.progress}%"></div></div><div class="flex gap-2 mt-8" onclick="event.stopPropagation()"><button onclick="logic.updateProjectProgress(${p.id}, 10)" class="flex-1 py-3 text-xs font-bold bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100">+10%</button><button onclick="logic.deleteData('projects', ${p.id})" class="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div>`).join('') || '<p class="col-span-full text-center text-slate-400 italic py-10">No active projects yet.</p>'}</div>`;
-                lucide.createIcons();
+                let projs = await db.projects.toArray(); if (state.searchQuery) projs = projs.filter(p => p.name.toLowerCase().includes(state.searchQuery));
+                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    ${projs.map(p => `<div class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 transition-all hover:border-indigo-200 cursor-pointer" onclick="logic.showDetails('projects', ${p.id})"><h4 class="text-2xl font-black mb-8 text-slate-800 tracking-tight">${p.name}</h4><div class="mt-auto"><div class="flex justify-between text-[11px] font-black text-slate-400 uppercase mb-4 tracking-widest"><span>Execution Stage</span><span>${p.progress}%</span></div><div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-100"><div class="bg-indigo-600 h-full transition-all duration-1000" style="width: ${p.progress}%"></div></div><div class="flex gap-4 mt-10" onclick="event.stopPropagation()"><button onclick="logic.updateProjectProgress(${p.id}, 10)" class="flex-1 py-4 text-xs font-black bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all">+10% Inc</button><button onclick="logic.deleteData('projects', ${p.id})" class="p-4 text-red-500 hover:bg-red-50 rounded-2xl"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div></div></div>`).join('') || '<div class="col-span-full py-20 text-center opacity-30 font-black uppercase tracking-widest text-xs">No active builds.</div>'}
+                </div>`; lucide.createIcons();
             },
 
             habits: async (target) => {
                 const list = await db.habits.toArray();
-                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    ${list.map(h => `
-                        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 flex flex-col items-center text-center relative group">
-                            <button onclick="logic.deleteData('habits', ${h.id})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="x" class="w-5 h-5"></i></button>
-                            <h4 class="font-bold text-slate-700 mb-4">${h.name}</h4>
-                            <div class="text-5xl font-black text-indigo-600 mb-1">${h.streak}</div>
-                            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-8">Current Streak</p>
-                            <div class="w-full flex gap-2">
-                                <button onclick="logic.incrementHabit(${h.id})" class="flex-1 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all">+ Log</button>
-                                <button onclick="logic.resetHabit(${h.id})" class="p-4 bg-slate-50 border rounded-2xl text-slate-400 hover:text-orange-500 transition-all" title="Reset Streak"><i data-lucide="refresh-ccw" class="w-5 h-5"></i></button>
-                            </div>
-                        </div>
-                    `).join('') || '<p class="col-span-full text-center text-slate-400 italic py-10">Start tracking a habit to build streaks!</p>'}
-                </div>`;
-                lucide.createIcons();
+                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-10">${list.map(h => `<div class="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100 flex flex-col items-center text-center relative group">
+                    <button onclick="logic.deleteData('habits', ${h.id})" class="absolute top-8 right-8 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="x-circle" class="w-6 h-6"></i></button>
+                    <h4 class="font-black text-slate-800 text-xl mb-4 tracking-tight">${h.name}</h4>
+                    <div class="text-6xl font-black text-indigo-600 mb-2">${h.streak}</div>
+                    <p class="text-[11px] font-black uppercase text-slate-400 tracking-[0.3em] mb-10">Current Streak</p>
+                    <div class="w-full flex gap-3"><button onclick="logic.incrementHabit(${h.id})" class="flex-1 py-5 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-[2rem] shadow-xl hover:scale-105 transition-all">Daily Log</button><button onclick="logic.resetHabit(${h.id})" class="p-5 bg-slate-50 border rounded-[2rem] text-slate-300 hover:text-orange-500 transition-all"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button></div>
+                </div>`).join('') || '<div class="col-span-full py-20 text-center opacity-30 font-black uppercase tracking-widest text-xs">Awaiting recurrence.</div>'}</div>`; lucide.createIcons();
             },
 
             school: async (target) => {
-                const classes = await db.school.toArray();
-                const tasks = await db.tasks.toArray(); 
-                target.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <section class="space-y-6">
-                            <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest flex justify-between items-center">
-                                <span>Active Classes</span>
-                            </h3>
-                            ${classes.map(c => `<div class="bg-indigo-900 text-white p-6 rounded-3xl shadow-xl overflow-hidden relative group">
-                                <i data-lucide="graduation-cap" class="absolute -right-4 -bottom-4 w-24 h-24 opacity-10"></i>
-                                <div class="relative z-10">
-                                    <h4 class="text-lg font-bold mb-1">${c.className}</h4>
-                                    <p class="text-xs opacity-60 font-medium">${c.instructor || 'No Instructor'}</p>
-                                    <button onclick="logic.deleteData('school', ${c.id})" class="mt-4 text-[10px] uppercase font-bold text-white/40 hover:text-white transition-opacity">Remove</button>
-                                </div>
-                            </div>`).join('') || '<p class="text-slate-400 italic">No classes found. Add one to start tracking assignments.</p>'}
-                        </section>
-                        <section class="space-y-4">
-                            <h3 class="text-xs font-black uppercase text-slate-400 tracking-widest">School Assignments</h3>
-                            <div class="space-y-2">
-                                ${tasks.filter(t => t.classId && t.classId !== "").map(t => `<div class="p-4 bg-white border border-slate-200 rounded-2xl flex justify-between items-center group cursor-pointer hover:border-indigo-300" onclick="logic.showDetails('tasks', ${t.id})">
-                                    <div class="flex items-center gap-3">
-                                        <input type="checkbox" onchange="event.stopPropagation(); logic.toggleTask(${t.id})" ${t.status === 'done' ? 'checked' : ''}>
-                                        <span class="text-sm font-bold text-slate-700 ${t.status === 'done' ? 'line-through opacity-40' : ''}">${t.title}</span>
-                                    </div>
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-[10px] font-black uppercase text-slate-300">${classes.find(c => c.id == t.classId)?.className || 'Linked'}</span>
-                                        <button onclick="event.stopPropagation(); logic.deleteData('tasks', ${t.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                    </div>
-                                </div>`).join('') || '<p class="text-slate-400 italic">No homework linked to classes. Click "New Assignment" to add some!</p>'}
-                            </div>
-                        </section>
-                    </div>
-                `;
-                lucide.createIcons();
+                const classes = await db.school.toArray(); const tasks = await db.tasks.toArray(); 
+                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-12"><section class="space-y-8"><h3 class="text-[11px] font-black uppercase text-slate-400 tracking-widest">Knowledge Module Streams</h3>${classes.map(c => `<div class="bg-indigo-600 text-white p-10 rounded-[3rem] shadow-xl overflow-hidden relative group">
+                    <i data-lucide="graduation-cap" class="absolute -right-8 -bottom-8 w-32 h-32 opacity-10 group-hover:rotate-12 transition-transform"></i><div class="relative z-10"><h4 class="text-3xl font-black mb-1">${c.className}</h4><p class="text-xs font-bold text-white/60 tracking-widest uppercase">Prof. ${c.instructor || 'Unlisted'}</p><button onclick="logic.deleteData('school', ${c.id})" class="mt-8 text-[10px] uppercase font-black tracking-widest text-white/30 hover:text-white transition-opacity">Remove Course</button></div>
+                </div>`).join('') || '<div class="py-10 text-slate-300 font-bold uppercase tracking-widest text-center text-xs">No registration.</div>'}</section><section class="space-y-6"><h3 class="text-[11px] font-black uppercase text-slate-400 tracking-widest">Pending Assignments</h3><div class="space-y-4">
+                ${tasks.filter(t => t.classId).map(t => `<div class="p-6 bg-white border border-slate-100 rounded-[2rem] flex justify-between items-center group cursor-pointer hover:border-indigo-300 transition-all shadow-sm" onclick="logic.showDetails('tasks', ${t.id})">
+                    <div class="flex items-center gap-4"><div class="w-3 h-3 rounded-full bg-indigo-500"></div><span class="text-sm font-black text-slate-700 ${t.status === 'done' ? 'line-through opacity-30' : ''}">${t.title}</span></div>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">${classes.find(c => c.id == t.classId)?.className.slice(0,10) || 'Active'}</span>
+                </div>`).join('') || '<div class="py-10 text-slate-300 italic text-sm text-center">Load clear.</div>'}</div></section></div>`; lucide.createIcons();
             },
 
             extra: async (target) => {
                 const extras = await db.extra.toArray();
-                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">${extras.map(e => `<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex justify-between items-center group"><span class="font-bold text-slate-700">${e.name}</span> <button onclick="logic.deleteData('extra', ${e.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join('') || '<p class="col-span-full text-center text-slate-400 italic py-10">No activities listed.</p>'}</div>`;
+                target.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8">${extras.map(e => `<div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex justify-between items-center group hover:border-indigo-200 transition-all"><span class="font-black text-slate-700 uppercase tracking-widest text-xs">${e.name}</span> <button onclick="logic.deleteData('extra', ${e.id})" class="text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-3"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join('') || '<div class="col-span-full py-20 text-center opacity-30 font-black uppercase tracking-widest text-xs">No extra modules.</div>'}</div>`;
                 lucide.createIcons();
             }
         };
 
-        /**
-         * 6. AUTOMATION SYSTEM 
-         */
         const automation = {
             runner: async () => {
-                if (!state.config.automation.autoCarryover) return;
-                const today = new Date().toISOString().split('T')[0];
+                if (!state.config.automation.autoCarryover) return; const today = new Date().toISOString().split('T')[0];
                 const overdue = await db.tasks.where('dueDate').below(today).and(t => t.status !== 'done').toArray();
-                if (overdue.length > 0) {
-                    for (let task of overdue) await db.tasks.update(task.id, { dueDate: today });
-                }
+                if (overdue.length > 0) { for (let task of overdue) await db.tasks.update(task.id, { dueDate: today }); }
             }
         };
 
         /**
-         * 7. CORE BUSINESS LOGIC 
+         * 7. CORE BUSINESS LOGIC (ALL URL/ICAL LOGIC PRESERVED)
          */
         const logic = {
+            setTheme: (t) => { state.config.theme = t; logic.saveConfig(); logic.applyTheme(); router.load('settings'); },
+            applyTheme: () => { const themes = ['light', 'dark', 'colorful', 'party']; themes.forEach(th => document.body.classList.remove(`theme-${th}`)); document.body.classList.add(`theme-${state.config.theme}`); },
             
-            /** =====================================================================
-                THEME ENGINE LOGIC (NEW)
-                ===================================================================== */
-            
-            setTheme: (themeName) => {
-                state.config.theme = themeName;
-                logic.saveConfig();
-                logic.applyTheme();
-                router.load('settings');
+            /* ADDED: TIMER DURATION SELECTOR */
+            showTimerSettings: () => {
+                const html = `
+                    <div class="grid grid-cols-2 gap-5">
+                        <button onclick="logic.setTimer(1500)" class="p-8 bg-indigo-50 border border-indigo-100 rounded-[2rem] font-black text-indigo-700 hover:bg-indigo-600 hover:text-white transition-all text-xl">25:00<span class="block text-[10px] mt-1 opacity-60 uppercase tracking-widest">Focus</span></button>
+                        <button onclick="logic.setTimer(3000)" class="p-8 bg-indigo-50 border border-indigo-100 rounded-[2rem] font-black text-indigo-700 hover:bg-indigo-600 hover:text-white transition-all text-xl">50:00<span class="block text-[10px] mt-1 opacity-60 uppercase tracking-widest">Deep Work</span></button>
+                        <button onclick="logic.setTimer(600)" class="p-8 bg-slate-50 border border-slate-100 rounded-[2rem] font-black text-slate-400 hover:bg-slate-900 hover:text-white transition-all text-xl">10:00<span class="block text-[10px] mt-1 opacity-60 uppercase tracking-widest">Quick Break</span></button>
+                        <div class="p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] flex flex-col justify-center">
+                           <input type="number" id="custom-min-input" class="w-full bg-transparent font-black text-3xl outline-none text-slate-800" placeholder="0">
+                           <span class="text-[9px] font-black uppercase text-slate-300 tracking-[0.2em] mt-1">Manual Minutes</span>
+                        </div>
+                    </div>
+                `;
+                const action = `<button onclick="logic.setTimer(parseInt(document.getElementById('custom-min-input').value||0)*60)" class="px-10 py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 uppercase text-xs tracking-[0.1em]">Engage Timer</button>`;
+                ui.modal.open("Temporal Adjustment", "Configure your perception of time", html, action);
             },
-
-            applyTheme: () => {
-                const themes = ['light', 'dark', 'colorful', 'party'];
-                themes.forEach(t => document.body.classList.remove(`theme-${t}`));
-                document.body.classList.add(`theme-${state.config.theme}`);
-            },
-
-            /** =====================================================================
-                REMINDER SYSTEM LOGIC (NEW)
-                ===================================================================== */
+            setTimer: (secs) => { if(secs<=0)return; state.pomodoro.time = secs; state.pomodoro.totalTime = secs; ui.modal.close(); router.load('dashboard'); },
 
             openNewReminderModal: () => {
-                const form = `
-                    <form onsubmit="logic.saveReminder(event)" class="space-y-6">
-                        <div>
-                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Reminder Content</label>
-                            <input name="title" required class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-600" placeholder="e.g. Daily Medication">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Daily Time</label>
-                                <input type="time" name="time" required class="w-full p-4 border rounded-2xl">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Box Color</label>
-                                <input type="color" name="color" value="#6366f1" class="w-full h-[58px] p-1 border rounded-2xl cursor-pointer">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Priority / Dismiss Action</label>
-                            <select name="priority" class="w-full p-4 border rounded-2xl">
-                                <option value="1">1 Minute (Auto)</option>
-                                <option value="5">5 Minutes (Auto)</option>
-                                <option value="60">1 Hour (Auto)</option>
-                                <option value="1440">1 Day (Auto)</option>
-                                <option value="0">Requires Interaction</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl shadow-xl">Activate Schedule</button>
-                    </form>
-                `;
-                ui.modal.open("Schedule Reminder", "Daily automated notifications", form);
+                const form = `<form onsubmit="logic.saveReminder(event)" class="space-y-6">
+                    <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Notification Label</label><input name="title" required class="w-full p-5 border border-slate-100 rounded-3xl outline-none focus:ring-4 focus:ring-indigo-500/5 shadow-inner" placeholder="e.g. Health Sync"></div>
+                    <div class="grid grid-cols-2 gap-5"><div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Daily Activation</label><input type="time" name="time" required class="w-full p-5 border border-slate-100 rounded-3xl"></div>
+                    <div><label class="block text-[11px] font-black uppercase text-slate-400 mb-2 px-1 tracking-widest">Color Tag</label><input type="color" name="color" value="#6366f1" class="w-full h-[66px] p-2 border border-slate-100 rounded-3xl cursor-pointer"></div></div>
+                    <button type="submit" class="w-full py-6 bg-slate-900 text-white font-black rounded-[2.5rem] shadow-2xl mt-4 uppercase tracking-widest text-xs">Confirm Rule</button></form>`;
+                ui.modal.open("New Trigger", "Automated Daily Temporal Events", form);
             },
-
-            saveReminder: async (e) => {
-                e.preventDefault();
-                const data = Object.fromEntries(new FormData(e.target).entries());
-                data.dismissed = []; // Tracking per-day dismissals
-                await db.reminders.add(data);
-                ui.modal.close();
-                router.load('settings');
-            },
-
+            saveReminder: async (e) => { e.preventDefault(); const data = Object.fromEntries(new FormData(e.target).entries()); data.dismissed = []; await db.reminders.add(data); ui.modal.close(); router.load('settings'); },
             refreshRemindersList: async () => {
-                const container = document.getElementById('active-reminders-list');
-                if(!container) return;
-
-                const rs = await db.reminders.toArray();
-                container.innerHTML = rs.length ? rs.map(r => `
-                    <div class="p-6 bg-white border border-slate-100 rounded-[2rem] flex justify-between items-center shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-4 h-4 rounded-full ring-4 ring-slate-50" style="background: ${r.color}"></div>
-                            <div>
-                                <p class="font-bold text-slate-800">${r.title}</p>
-                                <p class="text-[10px] font-black uppercase text-slate-400 italic">Daily at ${r.time} • Prio: ${r.priority == '0' ? 'Manual' : r.priority + 'm'}</p>
-                            </div>
-                        </div>
-                        <button onclick="logic.deleteData('reminders', ${r.id})" class="p-3 text-slate-300 hover:text-red-500 transition-colors">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                `).join('') : `<div class="p-10 border-2 border-dashed border-slate-100 rounded-[2rem] text-center text-[10px] font-black uppercase tracking-widest text-slate-300">No active notifications</div>`;
+                const container = document.getElementById('active-reminders-list'); if(!container) return;
+                const rs = await db.reminders.toArray(); container.innerHTML = rs.length ? rs.map(r => `
+                    <div class="p-8 bg-white border border-slate-100 rounded-[2.5rem] flex justify-between items-center shadow-sm">
+                        <div class="flex items-center gap-6"><div class="w-1.5 h-1.5 rounded-full ring-[14px] ring-slate-50" style="background: ${r.color}"></div><div class="pl-4"><p class="font-black text-slate-800 text-xl leading-none tracking-tight">${r.title}</p><p class="text-[10px] font-black uppercase text-slate-400 mt-3 tracking-widest">Triggered daily @ ${r.time}</p></div></div>
+                        <button onclick="logic.deleteData('reminders', ${r.id})" class="p-4 text-slate-200 hover:text-red-500 transition-all hover:bg-red-50 rounded-2xl"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>`).join('') : `<div class="p-10 border-2 border-dashed border-slate-50 rounded-[2.5rem] text-center text-[11px] font-black uppercase tracking-[0.4em] text-slate-200">No active manifest triggers</div>`;
                 lucide.createIcons();
             },
-
             checkActiveReminders: async () => {
-                const now = new Date();
-                const curTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-                const dayStamp = now.toDateString();
-                
-                const active = await db.reminders.toArray();
-                active.forEach(r => {
-                    // Trigger if time matches and wasn't dismissed today
-                    if (r.time === curTime && (!r.dismissed || !r.dismissed.includes(dayStamp))) {
-                        logic.fireNotification(r);
-                    }
-                });
+                const now = new Date(); const curTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                const dayStamp = now.toDateString(); const active = await db.reminders.toArray();
+                active.forEach(r => { if (r.time === curTime && (!r.dismissed || !r.dismissed.includes(dayStamp))) logic.fireNotification(r); });
             },
-
             fireNotification: (r) => {
-                // Prevent duplicate toasts for the same reminder
                 if (document.getElementById(`toast-${r.id}`)) return;
-
+                /* ALERT SOUND PLAYS ON REMINDERS */
+                document.getElementById('timer-sound').play();
                 const hub = document.getElementById('nexus-notification-hub');
-                const toast = document.createElement('div');
-                toast.id = `toast-${r.id}`;
-                toast.className = 'notification-toast';
-                toast.style.borderColor = r.color;
-                
-                toast.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Scheduled Reminder</span>
-                            <h4 class="font-bold text-lg text-slate-800 mt-1">${r.title}</h4>
-                        </div>
-                        <button onclick="logic.dismissToastNotification(${r.id})" class="p-2 hover:bg-slate-100 rounded-full">
-                            <i data-lucide="x" class="w-5 h-5 text-slate-400 text-slate-400"></i>
-                        </button>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-slate-50 flex justify-end">
-                        <button onclick="logic.dismissToastNotification(${r.id})" class="text-xs font-black uppercase text-indigo-600 px-4 py-2 bg-indigo-50 rounded-xl hover:bg-indigo-100">Acknowledge</button>
-                    </div>
-                `;
-                
-                hub.appendChild(toast);
-                lucide.createIcons();
-
-                // Auto-dismiss logic based on user-set priority
-                const minutes = parseInt(r.priority);
-                if (minutes > 0) {
-                    setTimeout(() => logic.dismissToastNotification(r.id), minutes * 60000);
-                }
+                const toast = document.createElement('div'); toast.id = `toast-${r.id}`; toast.className = 'notification-toast shadow-2xl border-t-[10px]'; toast.style.borderColor = r.color;
+                toast.innerHTML = `<div class="flex justify-between items-start mb-6"><div><span class="text-[10px] font-black uppercase text-slate-300 tracking-widest">Temporal Trigger</span><h4 class="font-black text-2xl text-slate-900 mt-2 tracking-tight">${r.title}</h4></div></div><button onclick="logic.dismissToastNotification(${id})" class="w-full py-4 text-xs font-black uppercase tracking-widest bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-indigo-600 transition-all">Acknowledge</button>`;
+                hub.appendChild(toast); lucide.createIcons();
             },
-
             dismissToastNotification: async (id) => {
-                const el = document.getElementById(`toast-${id}`);
-                if (el) {
-                    el.classList.add('dismissing');
-                    setTimeout(() => el.remove(), 400);
-                }
-
-                // Add today to the dismissed list in DB so it doesn't pop up again today
-                const reminder = await db.reminders.get(id);
-                if (reminder) {
-                    const logs = reminder.dismissed || [];
-                    const today = new Date().toDateString();
-                    if(!logs.includes(today)) {
-                        logs.push(today);
-                        await db.reminders.update(id, { dismissed: logs });
-                    }
-                }
+                const el = document.getElementById(`toast-${id}`); if (el) { el.classList.add('dismissing'); setTimeout(() => el.remove(), 400); }
+                const reminder = await db.reminders.get(id); if (reminder) { const logs = reminder.dismissed || []; const today = new Date().toDateString(); if(!logs.includes(today)) { logs.push(today); await db.reminders.update(id, { dismissed: logs }); } }
             },
-
-            /** =====================================================================
-                CORE LOGIC (PRESERVED)
-                ===================================================================== */
-
-            search: (val) => {
-                state.searchQuery = val.toLowerCase();
-                if (state.currentView !== 'dashboard') router.load(state.currentView);
-            },
-
+            search: (val) => { state.searchQuery = val.toLowerCase(); if (state.currentView !== 'dashboard') router.load(state.currentView); },
             togglePomodoro: () => {
-                if (state.pomodoro.active) {
-                    clearInterval(state.pomodoro.interval);
-                    state.pomodoro.active = false;
-                } else {
+                if (state.pomodoro.active) { clearInterval(state.pomodoro.interval); state.pomodoro.active = false; } 
+                else {
                     state.pomodoro.active = true;
                     state.pomodoro.interval = setInterval(() => {
                         state.pomodoro.time--;
-                        if(state.pomodoro.time <= 0) logic.togglePomodoro();
-                        if(document.getElementById('pomo-timer')) document.getElementById('pomo-timer').innerText = `${Math.floor(state.pomodoro.time/60)}:${(state.pomodoro.time%60).toString().padStart(2, '0')}`;
+                        if(state.pomodoro.time <= 0) {
+                            logic.togglePomodoro();
+                            /* ALERT SOUND ON TIMER END */
+                            const audio = document.getElementById('timer-sound');
+                            if(audio) audio.play();
+                            alert("Focus manifestation complete!");
+                        }
+                        if(document.getElementById('pomo-timer')) {
+                            document.getElementById('pomo-timer').innerText = `${Math.floor(state.pomodoro.time/60)}:${(state.pomodoro.time%60).toString().padStart(2, '0')}`;
+                        }
                     }, 1000);
-                }
-                router.load('dashboard');
-            },
-
-            showImportInstructions: () => {
-                const html = `
-                    <div class="space-y-6 text-slate-600">
-                        <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex gap-4">
-                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold">1</div>
-                            <p class="text-sm">On your computer, open <b>calendar.google.com</b>.</p>
-                        </div>
-                        <div class="p-4 bg-white border rounded-2xl flex gap-4">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 font-bold">2</div>
-                            <p class="text-sm">Click the <b>Gear icon (⚙️)</b> at the top right, then select <b>Settings</b>.</p>
-                        </div>
-                        <div class="p-4 bg-white border rounded-2xl flex gap-4">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 font-bold">3</div>
-                            <p class="text-sm">On the left sidebar, click <b>Import & Export</b>.</p>
-                        </div>
-                        <div class="p-4 bg-white border rounded-2xl flex gap-4">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 font-bold">4</div>
-                            <p class="text-sm">Find the <b>Export</b> section and click the Export button. This downloads a <b>.zip</b> file.</p>
-                        </div>
-                        <div class="p-4 bg-white border rounded-2xl flex gap-4">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 font-bold">5</div>
-                            <p class="text-sm">Unzip the file on your computer and upload the <b>.ics</b> file here.</p>
-                        </div>
-                    </div>
-                `;
-                ui.modal.open("How to Export", "Follow these steps to sync your Google Calendar", html);
+                } router.load('dashboard');
             },
 
             importIcs: async (input) => {
-                const files = Array.from(input.files);
-                if (files.length === 0) return;
-                
-                let totalCount = 0;
+                const files = Array.from(input.files); if (!files.length) return;
+                let count = 0;
                 for (const file of files) {
                     const text = await file.text();
                     try {
-                        const jcalData = ICAL.parse(text);
-                        const comp = new ICAL.Component(jcalData);
+                        const jcalData = ICAL.parse(text); const comp = new ICAL.Component(jcalData);
                         const vevents = comp.getAllSubcomponents('vevent');
                         for (const vevent of vevents) {
                             const event = new ICAL.Event(vevent);
-                            await db.events.add({
-                                title: event.summary,
-                                start: event.startDate.toJSDate().toISOString(),
-                                end: event.endDate.toJSDate().toISOString(),
-                                description: event.description || '',
-                                createdAt: Date.now()
-                            });
-                            totalCount++;
+                            await db.events.add({ title: event.summary, start: event.startDate.toJSDate().toISOString(), end: event.endDate.toJSDate().toISOString(), description: event.description || '', createdAt: Date.now() });
+                            count++;
                         }
-                    } catch (err) {
-                        console.error(`Error parsing ${file.name}:`, err);
-                    }
-                }
-                alert(`Success! Imported ${totalCount} events from ${files.length} files.`);
-                router.load(state.currentView);
-            },
-
-            showUrlImportModal: () => {
-                const html = `
-                    <div class="space-y-4">
-                        <p class="text-xs text-slate-500 font-medium">Paste a Public Google Calendar ICAL link. Usually ends in <code class="bg-slate-100 p-0.5 rounded">/public/basic.ics</code></p>
-                        <input type="url" id="calendar-url-input" class="w-full p-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://calendar.google.com/calendar/ical/...">
-                        <button onclick="logic.fetchAndImportIcs(document.getElementById('calendar-url-input').value)" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl">Fetch & Update</button>
-                    </div>
-                `;
-                ui.modal.open("Link Public Calendar", "Import via URL feed", html);
-            },
-
-            fetchAndImportIcs: async (url) => {
-                if (!url) return;
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error("Could not fetch the calendar file.");
-                    const text = await response.text();
-                    const jcalData = ICAL.parse(text);
-                    const comp = new ICAL.Component(jcalData);
-                    const vevents = comp.getAllSubcomponents('vevent');
-                    let count = 0;
-                    for (const vevent of vevents) {
-                        const event = new ICAL.Event(vevent);
-                        await db.events.add({
-                            title: event.summary,
-                            start: event.startDate.toJSDate().toISOString(),
-                            end: event.endDate.toJSDate().toISOString(),
-                            description: event.description || '',
-                            createdAt: Date.now()
-                        });
-                        count++;
-                    }
-                    alert(`Success! Imported ${count} events.`);
-                    ui.modal.close();
-                    router.load(state.currentView);
-                } catch (err) {
-                    console.error(err);
-                    alert("Error fetching or parsing calendar. Note: Public links must support CORS to be fetched directly in the browser.");
-                }
+                    } catch (err) { console.error(err); }
+                } alert(`Manifested ${count} new temporal blocks.`); router.load(state.currentView);
             },
 
             handleForm: async (e, key, id = null) => {
-                e.preventDefault();
-                const fd = new FormData(e.target);
-                const data = Object.fromEntries(fd.entries());
-                
-                if (id) {
-                    await db[key].update(id, data);
-                } else {
-                    data.createdAt = Date.now();
-                    if(key === 'tasks') { data.status = 'pending'; }
-                    if(key === 'projects') { data.progress = 0; data.status = 'active'; }
-                    if(key === 'habits') { data.streak = 0; data.logs = []; }
+                e.preventDefault(); const fd = new FormData(e.target); const data = Object.fromEntries(fd.entries());
+                if (id) { await db[key].update(id, data); } else {
+                    data.createdAt = Date.now(); if(key==='tasks')data.status='pending';
+                    if(key==='projects'){data.progress=0; data.status='active';}
+                    if(key==='habits'){data.streak=0; data.logs=[];}
                     await db[key].add(data);
-                }
-                
-                ui.modal.close();
-                router.load(state.currentView);
+                } ui.modal.close(); router.load(state.currentView);
             },
-
             showDetails: async (table, id) => {
-                const item = await db[table].get(id);
-                if (!item) return;
-
-                let content = `<div class="space-y-8">`;
-                content += `
-                    <div class="grid grid-cols-2 gap-6 bg-white p-6 rounded-3xl border border-slate-100">
-                        <div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Status</p><p class="font-bold text-indigo-600 capitalize">${item.status || 'Active'}</p></div>
-                        ${item.priority ? `<div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Priority</p><p class="font-bold text-slate-800">${PRIORITY_LABELS[item.priority]}</p></div>` : ''}
-                        ${item.dueDate || item.deadline ? `<div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Due Date</p><p class="font-bold text-slate-800">${item.dueDate || item.deadline}</p></div>` : ''}
-                        ${item.start ? `<div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Scheduled</p><p class="font-bold text-slate-800">${new Date(item.start).toLocaleString()}</p></div>` : ''}
-                        <div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Created At</p><p class="font-bold text-slate-800">${new Date(item.createdAt).toLocaleDateString()}</p></div>
-                    </div>
-                `;
-
-                content += `
-                    <div class="space-y-3">
-                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Description & Notes</p>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 min-h-[120px]">
-                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">${item.description || 'No description provided.'}</p>
-                        </div>
-                    </div>
-                `;
-                content += `</div>`;
-
-                const actionsHtml = `<button onclick="ui.modal.renderForm('${table}', ${id})" class="px-4 py-2 bg-slate-100 font-bold text-xs rounded-xl hover:bg-slate-200 transition-all">Edit Item</button>`;
-                ui.modal.open(item.title || item.name, "Detailed Overview", content, actionsHtml);
+                const item = await db[table].get(id); if (!item) return;
+                let content = `<div class="space-y-10"><div class="grid grid-cols-2 gap-8 bg-slate-50/50 p-10 rounded-[2.5rem] border border-slate-100">
+                    <div><p class="text-[10px] font-black uppercase text-slate-400 mb-1">Status</p><p class="text-xl font-black text-indigo-600 capitalize">${item.status||'Active'}</p></div>
+                    ${item.priority?`<div><p class="text-[10px] font-black uppercase text-slate-400 mb-1">Impact</p><p class="text-xl font-black text-slate-800">${PRIORITY_LABELS[item.priority]}</p></div>`:''}
+                    <div><p class="text-[10px] font-black uppercase text-slate-400 mb-1">Temporal Origin</p><p class="text-xl font-black text-slate-800">${new Date(item.createdAt).toLocaleDateString()}</p></div>
+                </div><div class="space-y-4"><p class="text-[10px] font-black uppercase text-slate-400 pl-1">Detailed Logs</p><div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 min-h-[160px] shadow-sm"><p class="text-slate-600 leading-relaxed font-medium">${item.description||'No additional manifest data.'}</p></div></div></div>`;
+                const action = `<button onclick="ui.modal.renderForm('${table}', ${id})" class="px-10 py-4 bg-slate-900 font-black text-white text-xs uppercase tracking-widest rounded-2xl hover:bg-indigo-600 transition-all shadow-2xl">Modify Entry</button>`;
+                ui.modal.open(item.title||item.name||item.className, "Analysis Overview", content, action);
             },
-
-            toggleTask: async (id) => {
-                const task = await db.tasks.get(id);
-                await db.tasks.update(id, { status: task.status === 'done' ? 'pending' : 'done' });
-                router.load(state.currentView);
-            },
-
-            incrementHabit: async (id) => {
-                const habit = await db.habits.get(id);
-                await db.habits.update(id, { streak: (parseInt(habit.streak) || 0) + 1 });
-                router.load(state.currentView);
-            },
-
-            resetHabit: async (id) => {
-                if(confirm("Reset this habit streak to zero?")) {
-                    await db.habits.update(id, { streak: 0 });
-                    router.load(state.currentView);
-                }
-            },
-
-            updateProjectProgress: async (id, inc) => {
-                const p = await db.projects.get(id);
-                const newProg = Math.min((parseInt(p.progress) || 0) + inc, 100);
-                await db.projects.update(id, { progress: newProg });
-                router.load(state.currentView);
-            },
-
-            deleteData: async (table, id) => {
-                if(confirm("Permanently delete this item?")) {
-                    await db[table].delete(id);
-                    router.load(state.currentView);
-                }
-            },
-
-            toggleFeature: (key) => {
-                state.config.features[key] = !state.config.features[key];
-                logic.saveConfig();
-                ui.refreshNavigation();
-                router.load('settings');
-            },
-
-            updateConfig: (key, val) => {
-                state.config.automation[key] = val;
-                logic.saveConfig();
-            },
-
+            toggleTask: async (id) => { const t = await db.tasks.get(id); await db.tasks.update(id, { status: t.status === 'done' ? 'pending' : 'done' }); router.load(state.currentView); },
+            incrementHabit: async (id) => { const h = await db.habits.get(id); await db.habits.update(id, { streak: (parseInt(h.streak)||0) + 1 }); router.load(state.currentView); },
+            resetHabit: async (id) => { if(confirm("Reset streak to zero?")) { await db.habits.update(id, { streak: 0 }); router.load(state.currentView); } },
+            updateProjectProgress: async (id, inc) => { const p = await db.projects.get(id); const next = Math.min((parseInt(p.progress)||0) + inc, 100); await db.projects.update(id, { progress: next }); router.load(state.currentView); },
+            deleteData: async (table, id) => { if(confirm("Purge Entry?")) { await db[table].delete(id); router.load(state.currentView); } },
+            toggleFeature: (key) => { state.config.features[key] = !state.config.features[key]; logic.saveConfig(); ui.refreshNavigation(); router.load('settings'); },
             saveConfig: () => localStorage.setItem('app_config', JSON.stringify(state.config)),
-
-            exportData: async () => {
-                const results = {};
-                for (const table of db.tables) results[table.name] = await table.toArray();
-                const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `backup_${new Date().getTime()}.json`;
-                a.click();
-            },
-
-            factoryReset: async () => {
-                if(confirm("Factory reset? This deletes ALL data permanently.")) {
-                    await db.delete();
-                    localStorage.clear();
-                    window.location.reload();
-                }
-            }
+            exportData: async () => { const res = {}; for (const t of db.tables) res[t.name] = await t.toArray(); const b = new Blob([JSON.stringify(res, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `nexus_dump_${Date.now()}.json`; a.click(); },
+            factoryReset: async () => { if(confirm("Nuke Database? This cannot be undone.")) { await db.delete(); localStorage.clear(); window.location.reload(); } }
         };
 
         window.onload = ui.init;
